@@ -21,16 +21,92 @@
  *                                                                         *
  ***************************************************************************/
 """
-from qgis.PyQt.QtCore import QSettings, QTranslator, QCoreApplication
+import os.path
+from qgis.core import (
+    QgsProject,
+    QgsPointXY,
+    QgsDistanceArea,
+    QgsSpatialIndex,
+)
+from qgis.gui import QgsMapToolEmitPoint
+from qgis.PyQt.QtCore import QCoreApplication, QSettings, QTranslator
 from qgis.PyQt.QtGui import QIcon
-from qgis.PyQt.QtWidgets import QAction
+from qgis.PyQt.QtWidgets import QAction,QMessageBox
+from qgis.core import QgsProject,QgsVectorLayer,QgsGeometry,QgsFeature
+from qgis.gui import QgsMapToolEmitPoint
 
 # Initialize Qt resources from file resources.py
-from .resources import *
 # Import the code for the dialog
 from .DB_Streckenkm_dialog import StreckenkmFinderDialog
-import os.path
 
+class NearestPointFinder(QgsMapToolEmitPoint):
+    def __init__(self,iface,spatial_index,layer,distance_calc):
+        canvas = iface.mapCanvas()
+        super().__init__(canvas)
+        self.iface = iface
+        self.spatial_index = spatial_index
+        self.layer = layer
+        self.distance_calc = distance_calc
+        self.temp_layer:QgsVectorLayer|None = None
+        self.create_hidden_layer()
+        self.temp_layer_provider = self.temp_layer.dataProvider()
+        self.line:QgsFeature|None = None
+
+
+    def create_hidden_layer(self):
+        self.temp_layer =QgsVectorLayer("LineString?crs=EPSG:5683", "Nearest Line", "memory")
+        QgsProject.instance().addMapLayer(self.temp_layer)
+        tree_view = self.iface.layerTreeView()
+        model = self.iface.layerTreeView().layerTreeModel()
+        root = QgsProject().instance().layerTreeRoot()
+        node = root.findLayer(self.temp_layer.id())
+        index = model.node2index(node)
+        tree_view.setRowHidden(index.row(), index.parent(), True )
+        tree_view.setCurrentIndex(model.node2index(root))
+
+    def __del__(self):
+        """Remove the layer from the project."""
+        QgsProject.instance().removeMapLayer(self.temp_layer)
+        print(f"Layer {self.temp_layer.id()} deleted.")
+
+    def canvasReleaseEvent(self, event):
+        if not self.layer or not self.spatial_index:
+            QMessageBox.warning(None, "Warning", "No valid point layer or spatial index.")
+            return
+
+        # Get the clicked point in map coordinates
+        click_point = self.toMapCoordinates(event.pos())
+
+        # Find nearest point ID
+        nearest_id = self.spatial_index.nearestNeighbor(QgsPointXY(click_point), 1)
+        if not nearest_id:
+            QMessageBox.information(None, "Info", "No points found nearby.")
+            return
+
+        # Get the nearest feature and its attributes
+        nearest_feature = self.layer.getFeature(nearest_id[0])
+        nearest_geom = nearest_feature.geometry()
+        distance = self.distance_calc.measureLine(QgsPointXY(click_point), nearest_geom.asPoint())
+        strecken_nr = nearest_feature["GKA_STRECKEGLEISNR"] if "GKA_STRECKEGLEISNR" in nearest_feature.fields().names() else "No StreckengleisNr"
+        strecken_km = nearest_feature["strecken_km"] if "strecken_km" in nearest_feature.fields().names() else "No StreckenKm"
+        self.draw_line(QgsPointXY(click_point), nearest_geom.asPoint())
+
+        # Display information
+        QMessageBox.information(None, "StreckenNr",
+                                f"Name: {strecken_nr}\nStrecken Km: {strecken_km}")
+
+    def draw_line(self, start_point, end_point):
+        # Create a line feature
+        self.temp_layer_provider.truncate()
+
+        line_geom = QgsGeometry.fromPolylineXY([start_point, end_point])
+        line_feature = QgsFeature()
+        line_feature.setGeometry(line_geom)
+        # Add the line feature to the temporary layer
+        self.temp_layer_provider.addFeature(line_feature)
+        self.temp_layer.updateExtents()
+        self.temp_layer.triggerRepaint()
+        self.line = line_feature
 
 class StreckenkmFinder:
     """QGIS Plugin Implementation."""
@@ -66,8 +142,17 @@ class StreckenkmFinder:
         # Check if plugin was started the first time in current QGIS session
         # Must be set in initGui() to survive plugin reloads
         self.first_start = None
+        self.canvas = iface.mapCanvas()
+        self.layer = None
+        self.spatial_index = None
+        self.distance_calc = QgsDistanceArea()
+        self.distance_calc.setEllipsoid('WGS84')
+        self.map_tool = None
+    def create_spatial_index(self):
+        # Build spatial index for the point layer
+        self.spatial_index = QgsSpatialIndex(self.layer.getFeatures())
 
-    # noinspection PyMethodMayBeStatic
+        # noinspection PyMethodMayBeStatic
     def tr(self, message):
         """Get the translation for a string using Qt translation API.
 
@@ -82,18 +167,17 @@ class StreckenkmFinder:
         # noinspection PyTypeChecker,PyArgumentList,PyCallByClass
         return QCoreApplication.translate('StreckenkmFinder', message)
 
-
     def add_action(
-        self,
-        icon_path,
-        text,
-        callback,
-        enabled_flag=True,
-        add_to_menu=True,
-        add_to_toolbar=True,
-        status_tip=None,
-        whats_this=None,
-        parent=None):
+            self,
+            icon_path,
+            text,
+            callback,
+            enabled_flag=True,
+            add_to_menu=True,
+            add_to_toolbar=True,
+            status_tip=None,
+            whats_this=None,
+            parent=None):
         """Add a toolbar icon to the toolbar.
 
         :param icon_path: Path to the icon for this action. Can be a resource
@@ -170,7 +254,6 @@ class StreckenkmFinder:
         # will be set False in run()
         self.first_start = True
 
-
     def unload(self):
         """Removes the plugin menu item and icon from QGIS GUI."""
         for action in self.actions:
@@ -180,21 +263,33 @@ class StreckenkmFinder:
             self.iface.removeToolBarIcon(action)
 
 
-    def run(self):
-        """Run method that performs all the real work"""
-
-        # Create the dialog with elements (after translation) and keep reference
-        # Only create GUI ONCE in callback, so that it will only load when the plugin is started
-        if self.first_start == True:
-            self.first_start = False
-            self.dlg = StreckenkmFinderDialog()
+    def select_layer(self):
+        self.dlg = StreckenkmFinderDialog()
+        layers = QgsProject.instance().layerTreeRoot().children()
+        # Clear the contents of the comboBox from previous runs
+        self.dlg.comboBox.clear()
+        # Populate the comboBox with names of all the loaded layers
+        self.dlg.comboBox.addItems([layer.name() for layer in layers])
 
         # show the dialog
         self.dlg.show()
         # Run the dialog event loop
         result = self.dlg.exec_()
-        # See if OK was pressed
         if result:
-            # Do something useful here - delete the line containing pass and
-            # substitute with your code.
-            pass
+            self.layer = layers[self.dlg.comboBox.currentIndex()].layer()
+            self.create_spatial_index()
+
+    def set_map_tool(self):
+        self.map_tool = NearestPointFinder(self.iface,self.spatial_index,self.layer,self.distance_calc)
+        self.iface.mapCanvas().setMapTool(self.map_tool)
+
+    def run(self):
+        """Run method that performs all the real work"""
+
+        # Create the dialog with elements (after translation) and keep reference
+        # Only create GUI ONCE in callback, so that it will only load when the plugin is started
+        if self.spatial_index is None:
+            self.select_layer()
+        else:
+            self.set_map_tool()
+            # Fetch the currently loaded layers
