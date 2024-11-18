@@ -27,7 +27,7 @@
       <bool>true</bool>
      </property>
      <property name="text">
-      <string>Nebengleise ignorieren</string>
+      <string>Ignore empty Features</string>
      </property>
     </widget>
    </item>
@@ -57,7 +57,7 @@
       <bool>true</bool>
      </property>
      <property name="text">
-      <string>Attribut ist Dezimalzahl</string>
+      <string>Km Field is Float</string>
      </property>
     </widget>
    </item>

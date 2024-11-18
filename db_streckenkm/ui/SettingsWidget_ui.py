@@ -56,7 +56,7 @@ class Ui_SettingsWidget(object):
     def retranslateUi(self, SettingsWidget):
         _translate = QtCore.QCoreApplication.translate
         SettingsWidget.setWindowTitle(_translate("SettingsWidget", "DB_Streckenkm"))
-        self.checkBox_ignore_siding.setText(_translate("SettingsWidget", "Nebengleise ignorieren"))
+        self.checkBox_ignore_siding.setText(_translate("SettingsWidget", "Ignore empty Features"))
         self.label.setText(_translate("SettingsWidget", "Select a Layer"))
-        self.checkBox_real.setText(_translate("SettingsWidget", "Attribut ist Dezimalzahl"))
+        self.checkBox_real.setText(_translate("SettingsWidget", "Km Field is Float"))
         self.label_2.setText(_translate("SettingsWidget", "Start_km Field"))
