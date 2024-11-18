@@ -1,122 +1,93 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>SettingsWidget</class>
- <widget class="QWidget" name="SettingsWidget">
+ <class>Form</class>
+ <widget class="QWidget" name="Form">
   <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>540</width>
-    <height>486</height>
+    <width>586</width>
+    <height>428</height>
    </rect>
   </property>
   <property name="windowTitle">
-   <string>DB_Streckenkm</string>
+   <string>Form</string>
   </property>
   <layout class="QGridLayout" name="gridLayout">
-   <item row="1" column="1">
-    <widget class="QComboBox" name="comboBox_field">
-     <property name="enabled">
-      <bool>true</bool>
-     </property>
-    </widget>
-   </item>
-   <item row="3" column="0">
-    <widget class="QCheckBox" name="checkBox_ignore_siding">
-     <property name="enabled">
-      <bool>true</bool>
-     </property>
+   <item row="1" column="0">
+    <widget class="QLabel" name="label__field">
      <property name="text">
-      <string>Ignore empty Features</string>
-     </property>
-    </widget>
-   </item>
-   <item row="0" column="0">
-    <widget class="QLabel" name="label">
-     <property name="text">
-      <string>Select a Layer</string>
+      <string>Start_km Field:</string>
      </property>
     </widget>
    </item>
    <item row="5" column="0" colspan="2">
-    <widget class="QDialogButtonBox" name="button_box">
-     <property name="orientation">
-      <enum>Qt::Orientation::Horizontal</enum>
-     </property>
-     <property name="standardButtons">
-      <set>QDialogButtonBox::StandardButton::Cancel|QDialogButtonBox::StandardButton::Ok</set>
+    <widget class="QListWidget" name="listWidget"/>
+   </item>
+   <item row="2" column="0">
+    <widget class="QLabel" name="label_is_float">
+     <property name="text">
+      <string>Start_km is Float:</string>
      </property>
     </widget>
    </item>
-   <item row="0" column="1">
-    <widget class="QComboBox" name="comboBox_layer"/>
-   </item>
-   <item row="2" column="0" colspan="2">
-    <widget class="QCheckBox" name="checkBox_real">
-     <property name="enabled">
-      <bool>true</bool>
-     </property>
+   <item row="0" column="0">
+    <widget class="QLabel" name="label_layer">
      <property name="text">
-      <string>Km Field is Float</string>
+      <string>Layer:</string>
      </property>
     </widget>
    </item>
-   <item row="1" column="0">
-    <widget class="QLabel" name="label_2">
-     <property name="enabled">
-      <bool>true</bool>
-     </property>
+   <item row="3" column="1">
+    <widget class="QCheckBox" name="checkBox_ignore_empty">
      <property name="text">
-      <string>Start_km Field</string>
+      <string/>
      </property>
     </widget>
    </item>
    <item row="4" column="0" colspan="2">
-    <widget class="QListWidget" name="listWidget">
-     <property name="selectionMode">
-      <enum>QAbstractItemView::SelectionMode::ExtendedSelection</enum>
+    <widget class="QCheckBox" name="checkBox_select_all">
+     <property name="text">
+      <string>Select All</string>
+     </property>
+    </widget>
+   </item>
+   <item row="2" column="1">
+    <widget class="QCheckBox" name="checkBox_is_float">
+     <property name="text">
+      <string/>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="1">
+    <widget class="QComboBox" name="comboBox_field"/>
+   </item>
+   <item row="3" column="0">
+    <widget class="QLabel" name="label_ignore_empty">
+     <property name="text">
+      <string>Ignore empty Features:</string>
+     </property>
+    </widget>
+   </item>
+   <item row="0" column="1">
+    <widget class="QComboBox" name="comboBox_layer">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+       <horstretch>1</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+    </widget>
+   </item>
+   <item row="6" column="0" colspan="2">
+    <widget class="QPushButton" name="pushButton">
+     <property name="text">
+      <string>Create Spatial Index</string>
      </property>
     </widget>
    </item>
   </layout>
  </widget>
  <resources/>
- <connections>
-  <connection>
-   <sender>button_box</sender>
-   <signal>accepted()</signal>
-   <receiver>SettingsWidget</receiver>
-   <slot>accept()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>20</x>
-     <y>20</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>20</x>
-     <y>20</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>button_box</sender>
-   <signal>rejected()</signal>
-   <receiver>SettingsWidget</receiver>
-   <slot>reject()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>20</x>
-     <y>20</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>20</x>
-     <y>20</y>
-    </hint>
-   </hints>
-  </connection>
- </connections>
- <slots>
-  <slot>accept()</slot>
-  <slot>reject()</slot>
- </slots>
+ <connections/>
 </ui>

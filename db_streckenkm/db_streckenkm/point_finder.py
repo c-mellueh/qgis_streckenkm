@@ -1,3 +1,4 @@
+from PyQt5.QtCore import pyqtSignal
 from PyQt5.QtGui import QIcon
 from PyQt5.QtWidgets import QPushButton
 from PyQt5.QtWidgets import QWidget
@@ -10,80 +11,54 @@ from qgis.gui import QgsHighlight, QgsMapToolEmitPoint
 
 from . import string_to_real
 from ..ui.Popup_ui import Ui_Form
+from .settings_widget import SettingsWidget
+from .data_widget import DataWidget
 import os
 NEIGHBOR_SAMPLE_SIZE = 100
 from .. import get_icon_path
 
-class Popup(QWidget, Ui_Form):
-    ui_rows = 3 #Rows that are defined in the UI
-    def __init__(self, km_value,orthogonal_distance, value_list: list[tuple[str, str]]):
-        super().__init__()
-        self.setupUi(self)
-        self.label_value_km.setText(str(km_value))
-        self.label_value_ortho.setText(str(orthogonal_distance))
-
-        self.setWindowIcon(QIcon(get_icon_path()))
-        self.setWindowTitle(self.tr("StreckenKM"))
-        index = 0
-
-        icon_path = os.path.join(os.path.dirname(__file__),"..","icons", "icon_copy.png")
-
-        icon = QIcon(icon_path)
-        self.ui_rows = self.gridLayout.rowCount()
-        for index, (value_name, value) in enumerate(value_list):
-            self.gridLayout.addWidget(QLabel(value_name), index + self.ui_rows, 0, 1, 1)
-            self.gridLayout.addWidget(QLabel(str(value)), index + self.ui_rows, 1, 1, 1)
-            button = QPushButton()
-            button.setText("")
-            button.setMaximumSize(QSize(24, 24))
-            button.setIcon(icon)
-            button.clicked.connect(lambda b,t=value:self.copy_to_clipboard(t))
-            self.gridLayout.addWidget(button, index + self.ui_rows, 2, 1, 1)
-
-        self.pushbutton_km.clicked.connect(lambda:self.copy_to_clipboard(str(km_value)))
-        self.pushbutton_km.setIcon(icon)
-        self.pushbutton_km.setText("")
-
-        self.pushButton_ortho.clicked.connect(lambda:self.copy_to_clipboard(str(km_value)))
-        self.pushButton_ortho.setIcon(icon)
-        self.pushButton_ortho.setText("")
-
-        self.buttonBox = QDialogButtonBox(self)
-        self.buttonBox.setStandardButtons(QDialogButtonBox.StandardButton.Ok)
-        self.buttonBox.setObjectName("buttonBox")
-        self.gridLayout.addWidget(self.buttonBox, index + self.ui_rows+1, 0, 1, 3)
-        self.buttonBox.accepted.connect(self.close)
-        self.buttonBox.accepted.connect(self.hide)
-
-    def copy_to_clipboard(self,text):
-        clipboard = QApplication.clipboard()
-        clipboard.setText(str(text))
-
-
 class NearestPointFinder(QgsMapToolEmitPoint):
-    def __init__(self, iface, spatial_index, layer: QgsVectorLayer, field_name, field_is_real, ignore_sidings,
-                 displayed_field_names: list[str]):
+    point_found = pyqtSignal(float,float,list)
+    def __init__(self, iface, settings_widget:SettingsWidget):
         self.canvas = iface.mapCanvas()
         self.highlight:QgsHighlight|None = None
 
         super().__init__(self.canvas)
         self.iface = iface
-        self.spatial_index: QgsSpatialIndex = spatial_index
-        self.search_layer = layer
-        self.field_is_real = field_is_real
-        self.ignore_sidings = ignore_sidings
-        self.start_pos_field_name = field_name
-        self.displayed_field_names = displayed_field_names
+        self.settings_widget = settings_widget
         self.line_layer: QgsVectorLayer | None = None
         self.create_line_layer()
 
         self.line: QgsFeature | None = None
-
         self.distance_calc = QgsDistanceArea()
         self.distance_calc.setEllipsoid(self.search_layer.crs().authid())
+        self.data_widget: DataWidget | None = None
 
-        self.popup: Popup | None = None
+    @property
+    def spatial_index(self):
+        return self.settings_widget.spatial_index_dict.get(self.settings_widget.layer)
 
+    @property
+    def search_layer(self) -> QgsVectorLayer:
+        return self.settings_widget.layer
+    @property
+    def start_pos_field_name(self):
+        settings = self.settings_widget.get_settings()
+        return settings[1]
+    @property
+    def field_is_real(self) ->bool:
+        settings = self.settings_widget.get_settings()
+        return settings[2]
+
+    @property
+    def ignore_empty(self):
+        settings = self.settings_widget.get_settings()
+        return settings[3]
+
+    @property
+    def displayed_field_names(self):
+        settings = self.settings_widget.get_settings()
+        return settings[4]
 
     def __del__(self):
         """Remove the layer from the project."""
@@ -103,7 +78,7 @@ class NearestPointFinder(QgsMapToolEmitPoint):
         for fid in nearest_ids:
             feature = self.search_layer.getFeature(fid)
             val = feature[self.start_pos_field_name]
-            if not val and self.ignore_sidings:
+            if not val and self.ignore_empty:
                 continue
             geom = feature.geometry()
             distance = geom.distance(QgsGeometry.fromPointXY(point))
@@ -162,24 +137,18 @@ class NearestPointFinder(QgsMapToolEmitPoint):
             return
 
         #Calculate Linear Reference of closest Point
-        if self.field_is_real:
-            position = start_pos + dist / 1000
-        else:
-            position = string_to_real(start_pos) + dist / 1000
-        position = round(position, 3)
 
+        try:
+            if self.field_is_real:
+                position = start_pos + dist / 1000
+            else:
+
+                position = string_to_real(start_pos) + dist / 1000
+        except TypeError:
+            QMessageBox.information(None, self.tr("Value format wrong"), self.tr(f"Field '{self.start_pos_field_name}' doesn't match required format"))
+            return
         #Create Popup
-        geometry = None
-        if self.popup is not None:
-            geometry = self.popup.geometry()
-            self.popup.hide()
-            self.popup.close()
-
-        self.popup = Popup(position,round(ortho_dist,3), self.get_value_list(nearest_feature))
-
-        if geometry:
-            self.popup.setGeometry(geometry)
-        self.popup.show()
+        self.point_found.emit(position, ortho_dist, self.get_value_list(nearest_feature))
 
     def get_partial_line_length(self, line: QgsGeometry, index: int, closest_point:QgsPointXY):
         """

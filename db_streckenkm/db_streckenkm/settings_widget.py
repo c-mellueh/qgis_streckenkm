@@ -26,14 +26,14 @@ from PyQt5 import QtCore, QtWidgets
 from PyQt5.QtGui import QIcon
 from PyQt5.QtWidgets import QListWidgetItem
 from qgis.PyQt import QtCore, QtWidgets
-from qgis.core import QgsProject, QgsVectorLayer,QgsMessageLog,Qgis
-from PyQt5 import QtWidgets
-from .SettingsWidget_ui import Ui_SettingsWidget
-from .. import get_icon_path
+from qgis.core import Qgis, QgsMessageLog, QgsProject, QgsSpatialIndex, QgsVectorLayer
 
-class SettingsWidget(QtWidgets.QWidget, Ui_SettingsWidget):
-    accept = QtCore.pyqtSignal()
-    reject = QtCore.pyqtSignal()
+from db_streckenkm import get_icon_path
+from db_streckenkm.ui.SettingsWidget_ui import Ui_Form
+
+
+class SettingsWidget(QtWidgets.QWidget, Ui_Form):
+    spatial_index_created = QtCore.pyqtSignal()
 
     def __init__(self, parent=None):
         """Constructor."""
@@ -46,44 +46,75 @@ class SettingsWidget(QtWidgets.QWidget, Ui_SettingsWidget):
         self.setupUi(self)
         self.listWidget.setSelectionMode(QtWidgets.QAbstractItemView.SelectionMode.ExtendedSelection)
         self.listWidget.itemChanged.connect(self.item_changed)
-        self.layer_dict = dict()
         self.comboBox_layer.currentTextChanged.connect(self.layer_changed)
-        self.reload_layer_combobox()
-        self.accept.connect(self.hide)
-        self.reject.connect(self.hide)
-        self.accept.connect(self.save_settings)
-        QgsMessageLog.logMessage(f"Icon Path: {get_icon_path()}", "StreckenKM", Qgis.Info)
         self.setWindowIcon(QIcon(get_icon_path()))
+        self.spatial_index_dict: dict[QgsVectorLayer, QgsSpatialIndex] = dict()
+        self.settings_dict: dict[QgsVectorLayer, list] = dict()
 
-    def item_changed(self,focus_item:QListWidgetItem):
+        self.reload_layer_combobox()
+        self.pushButton.clicked.connect(self.create_spatial_index)
+        self.checkBox_select_all.clicked.connect(self.select_all_clicked)
+
+    def paintEvent(self, a0):
+        super().paintEvent(a0)
+        layer = self.get_settings()[0]
+        self.reload_layer_combobox(layer)
+
+    def select_all_clicked(self):
+        cs = self.checkBox_select_all.checkState()
+        for i in range(self.listWidget.count()):
+            self.listWidget.item(i).setCheckState(cs)
+
+    @property
+    def layer(self) -> QgsVectorLayer | None:
+        layer_name = self.comboBox_layer.currentText()
+        layers = QgsProject.instance().mapLayers().values()
+        for layer in layers:
+            if layer.name() == layer_name:
+                return layer
+        return None
+
+    def create_spatial_index(self):
+        # Build spatial index for the point layer
+        self.spatial_index_dict[self.layer] = QgsSpatialIndex(self.layer.getFeatures())
+        self.spatial_index_created.emit()
+
+    def item_changed(self, focus_item: QListWidgetItem):
         new_checkstate = focus_item.checkState()
         items = self.listWidget.selectedItems()
         for item in items:
             item.setCheckState(new_checkstate)
+        self.save_settings()
+        if self.all_items_are_checked():
+            self.checkBox_select_all.setChecked(True)
+        else:
+            self.checkBox_select_all.setChecked(False)
 
+    def all_items_are_checked(self):
+        items = [self.listWidget.item(i) for i in range(self.listWidget.count())]
+        checkstates = set(item.checkState() for item in items)
+        return checkstates == {QtCore.Qt.CheckState.Checked}
 
     def reload_layer_combobox(self, selected_layer=None):
-        layers = QgsProject.instance().layerTreeRoot().children()
+        layer_names = sorted(l.name() for l in QgsProject.instance().mapLayers().values())
+
+        if set(layer_names) == {self.comboBox_layer.itemText(i) for i in range(self.comboBox_layer.count())}:
+            return
+
         # Clear the contents of the comboBox from previous runs
         self.comboBox_layer.clear()
         # Populate the comboBox with names of all the loaded layers
-        self.comboBox_layer.addItems([layer.name() for layer in layers if isinstance(layer.layer(), QgsVectorLayer)])
+        QgsMessageLog.logMessage(str(layer_names), "StreckenKM", Qgis.Info)
+        self.comboBox_layer.addItems(layer_names)
         if selected_layer:
             self.comboBox_layer.setCurrentText(selected_layer.name())
 
-    def get_selected_settings(self):
-        layer_name = self.comboBox_layer.currentText()
-        layers = QgsProject.instance().mapLayers().values()
-        layer: QgsVectorLayer | None = None
-        for layer in layers:
-            if layer.name() == layer_name:
-                layer = layer
-                break
+    def get_settings(self):
         field_name = self.comboBox_field.currentText()
-        attribute_is_real = self.checkBox_real.isChecked()
-        ignore_sidings = self.checkBox_ignore_siding.isChecked()
+        attribute_is_real = self.checkBox_is_float.isChecked()
+        ignore_sidings = self.checkBox_ignore_empty.isChecked()
         checked_fields = self.get_checked_field_names()
-        return layer, field_name, attribute_is_real, ignore_sidings, checked_fields
+        return self.layer, field_name, attribute_is_real, ignore_sidings, checked_fields
 
     def get_checked_field_names(self):
         checked_fields = list()
@@ -94,23 +125,24 @@ class SettingsWidget(QtWidgets.QWidget, Ui_SettingsWidget):
         return checked_fields
 
     def layer_changed(self):
-        layer, _, _, _, _ = self.get_selected_settings()
+        layer, _, _, _, _ = self.get_settings()
         if not isinstance(layer, QgsVectorLayer):
             return
-        if self.layer_dict.get(layer) is None:
+        if self.settings_dict.get(layer) is None:
             field_name, attribute_is_real, ignore_sidings, checked_fields = None, None, None, None
         else:
-            field_name, attribute_is_real, ignore_sidings, checked_fields = self.layer_dict[layer]
+            field_name, attribute_is_real, ignore_sidings, checked_fields = self.settings_dict[layer]
 
         field_names = [field.name() for field in layer.fields()]
         self.comboBox_field.clear()
         self.comboBox_field.addItems(field_names)
         if field_name:
             self.comboBox_field.setCurrentText(field_name)
-        self.checkBox_real.setChecked(True if attribute_is_real else False)
-        self.checkBox_ignore_siding.setChecked(True if ignore_sidings else False)
+        self.checkBox_is_float.setChecked(True if attribute_is_real else False)
+        self.checkBox_ignore_empty.setChecked(True if ignore_sidings else False)
 
         self.listWidget.clear()
+        self.checkBox_select_all.setChecked(False)
         if not checked_fields:
             checked_fields = []
         for name in field_names:
@@ -123,5 +155,5 @@ class SettingsWidget(QtWidgets.QWidget, Ui_SettingsWidget):
             self.listWidget.addItem(item)
 
     def save_settings(self):
-        layer, field_name, attribute_is_real, ignore_sidings, checked_fields = self.get_selected_settings()
-        self.layer_dict[layer] = [field_name, attribute_is_real, ignore_sidings, checked_fields]
+        layer, field_name, attribute_is_real, ignore_sidings, checked_fields = self.get_settings()
+        self.settings_dict[layer] = [field_name, attribute_is_real, ignore_sidings, checked_fields]

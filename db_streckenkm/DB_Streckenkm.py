@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 /***************************************************************************
  StreckenkmFinder
@@ -23,19 +22,24 @@
 """
 import os.path
 
-from qgis.PyQt.QtCore import QCoreApplication, QSettings, QTranslator
+from PyQt5.QtWidgets import QMessageBox
+from qgis.PyQt.QtCore import QCoreApplication, QSettings, QTranslator,Qt
 from qgis.PyQt.QtGui import QIcon
 from qgis.PyQt.QtWidgets import QAction
 from qgis.core import QgsSpatialIndex
+from qgis.gui import QgisInterface
 
+from PyQt5.QtCore import Qt
+
+from .db_streckenkm.dock_widget import DockWidget
 from .db_streckenkm.point_finder import NearestPointFinder
-from .ui.settingswidget import SettingsWidget
+from db_streckenkm.db_streckenkm.settings_widget import SettingsWidget
 from . import get_icon_path
 
 class StreckenkmFinder:
     """QGIS Plugin Implementation."""
 
-    def __init__(self, iface):
+    def __init__(self, iface:QgisInterface):
         """Constructor.
 
         :param iface: An interface instance that will be passed to this class
@@ -68,25 +72,12 @@ class StreckenkmFinder:
         self.first_start = None
         self.canvas = iface.mapCanvas()
         self.spatial_index = None
-
         self.iface.mapCanvas().mapToolSet.connect(self.map_tool_changed)
 
-        # Create Settings Widget
-        self.settings_widget = SettingsWidget()
-        self.layer = None
-        self.field_name = None
-        self.field_is_real = None
-        self.ignore_sidings = None
-        self.displayed_fields = list()
-        self.connect_settings_widget()
-         # Declare MapTool
+        # Declare DockWidget Widget
+        self.dockwidget:DockWidget = None
+        # Declare MapTool
         self.map_tool: NearestPointFinder | None = None
-
-    def create_spatial_index(self):
-        # Build spatial index for the point layer
-        self.spatial_index = QgsSpatialIndex(self.layer.getFeatures())
-
-        # noinspection PyMethodMayBeStatic
 
     def tr(self, message):
         """Get the translation for a string using Qt translation API.
@@ -189,14 +180,6 @@ class StreckenkmFinder:
             parent=self.iface.mainWindow(),
             add_to_toolbar=True)
 
-        # Add Settings Action
-        self.add_action(
-            icon_path,
-            text=self.tr(u'Settings'),
-            callback=self.open_settings,
-            parent=self.iface.mainWindow(),
-            add_to_toolbar=False)
-
         # will be set False in run()
         self.first_start = True
 
@@ -208,21 +191,6 @@ class StreckenkmFinder:
                 action)
             self.iface.removeToolBarIcon(action)
 
-    def connect_settings_widget(self):
-        self.settings_widget.accept.connect(self.update_settings)
-
-    def update_settings(self):
-        layer, self.field_name, self.field_is_real, self.ignore_sidings, self.displayed_fields = self.settings_widget.get_selected_settings()
-        if layer != self.layer:
-            self.layer = layer
-            self.create_spatial_index()
-        self.activate_maptool()
-
-    def open_settings(self):
-        self.settings_widget.reload_layer_combobox(self.layer)
-        self.settings_widget.layer_changed()
-        self.settings_widget.show()
-        self.settings_widget.activateWindow()
 
     def map_tool_changed(self):
         if self.map_tool is not None:
@@ -230,8 +198,9 @@ class StreckenkmFinder:
             self.map_tool.delete_lines()
 
     def activate_maptool(self):
-        self.map_tool = NearestPointFinder(self.iface, self.spatial_index, self.layer, self.field_name,
-                                           self.field_is_real, self.ignore_sidings,self.displayed_fields)
+        self.dockwidget.tab_widget.setCurrentIndex(self.dockwidget.data_widget_index)
+        self.map_tool = NearestPointFinder(self.iface, self.dockwidget.settings_widget)
+        self.map_tool.point_found.connect(self.dockwidget.point_found)
         self.iface.mapCanvas().setMapTool(self.map_tool)
 
     def run(self):
@@ -239,8 +208,15 @@ class StreckenkmFinder:
 
         # Create the dialog with elements (after translation) and keep reference
         # Only create GUI ONCE in callback, so that it will only load when the plugin is started
-        if self.spatial_index is None:
-            self.open_settings()
-        else:
-            self.activate_maptool()
-            # Fetch the currently loaded layers
+        from .db_streckenkm.dock_widget import DockWidget
+        if not self.dockwidget:
+            self.dockwidget = DockWidget(self.iface.mainWindow(),self.iface)
+            self.iface.addDockWidget(Qt.DockWidgetArea.AllDockWidgetAreas, self.dockwidget)
+            self.dockwidget.settings_widget.spatial_index_created.connect(self.activate_maptool)
+            return
+
+        if not self.dockwidget.is_maptool_available():
+            QMessageBox.warning(None,self.tr("Warning"), self.tr("You need to create a Spatial Index first"))
+            return
+
+        self.activate_maptool()
