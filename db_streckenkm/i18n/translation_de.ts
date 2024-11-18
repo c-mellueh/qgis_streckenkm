@@ -12,58 +12,58 @@
 <context>
     <name>Form</name>
     <message>
-        <location filename="ui/DataWidget.ui" line="14"/>
-        <location filename="ui/SettingsWidget.ui" line="14"/>
+        <location filename="ui/DataWidget_ui.ui" line="14"/>
+        <location filename="ui/SettingsWidget_ui.ui" line="14"/>
         <source>Form</source>
         <translation>Dialog</translation>
     </message>
     <message>
-        <location filename="ui/DataWidget.ui" line="27"/>
+        <location filename="ui/DataWidget_ui.ui" line="27"/>
         <source>Value Ortho</source>
         <translation>Wert Ortho</translation>
     </message>
     <message>
-        <location filename="ui/DataWidget.ui" line="34"/>
+        <location filename="ui/DataWidget_ui.ui" line="34"/>
         <source>Kilometer</source>
         <translation>Kilometer</translation>
     </message>
     <message>
-        <location filename="ui/DataWidget.ui" line="47"/>
+        <location filename="ui/DataWidget_ui.ui" line="47"/>
         <source>Value Kilomater</source>
         <translation>Wert Kilometer</translation>
     </message>
     <message>
-        <location filename="ui/DataWidget.ui" line="87"/>
+        <location filename="ui/DataWidget_ui.ui" line="87"/>
         <source>Orthogonal Distance</source>
         <translation>Orthogonale Distanz</translation>
     </message>
     <message>
-        <location filename="ui/SettingsWidget.ui" line="20"/>
+        <location filename="ui/SettingsWidget_ui.ui" line="20"/>
         <source>Start_km Field:</source>
         <translation>Start_km Feld:</translation>
     </message>
     <message>
-        <location filename="ui/SettingsWidget.ui" line="30"/>
+        <location filename="ui/SettingsWidget_ui.ui" line="30"/>
         <source>Start_km is Float:</source>
         <translation>Start_km ist Float:</translation>
     </message>
     <message>
-        <location filename="ui/SettingsWidget.ui" line="37"/>
+        <location filename="ui/SettingsWidget_ui.ui" line="37"/>
         <source>Layer:</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="ui/SettingsWidget.ui" line="51"/>
+        <location filename="ui/SettingsWidget_ui.ui" line="51"/>
         <source>Select All</source>
         <translation>Alles auswählen</translation>
     </message>
     <message>
-        <location filename="ui/SettingsWidget.ui" line="68"/>
+        <location filename="ui/SettingsWidget_ui.ui" line="68"/>
         <source>Ignore empty Features:</source>
         <translation>Leere Features ignorieren:</translation>
     </message>
     <message>
-        <location filename="ui/SettingsWidget.ui" line="85"/>
+        <location filename="ui/SettingsWidget_ui.ui" line="85"/>
         <source>Create Spatial Index</source>
         <translation>Spatial Index erstellen</translation>
     </message>
