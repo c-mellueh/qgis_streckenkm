@@ -3,7 +3,7 @@ from PyQt5.QtWidgets import QPushButton
 from PyQt5.QtWidgets import QWidget
 from qgis.PyQt.QtCore import QSize, Qt
 from qgis.PyQt.QtGui import QColor
-from qgis.PyQt.QtWidgets import QDialogButtonBox, QLabel, QMessageBox,QApplication
+from qgis.PyQt.QtWidgets import QDialogButtonBox, QLabel, QMessageBox,QApplication,QDockWidget
 from qgis.core import Qgis, QgsDistanceArea, QgsMessageLog, QgsPointXY, QgsSpatialIndex,QgsWkbTypes
 from qgis.core import QgsFeature, QgsGeometry, QgsProject, QgsSimpleLineSymbolLayer, QgsVectorLayer
 from qgis.gui import QgsHighlight, QgsMapToolEmitPoint

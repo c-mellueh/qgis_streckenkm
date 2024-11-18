@@ -24,6 +24,7 @@
 
 from PyQt5 import QtCore, QtWidgets
 from PyQt5.QtGui import QIcon
+from PyQt5.QtWidgets import QListWidgetItem
 from qgis.PyQt import QtCore, QtWidgets
 from qgis.core import QgsProject, QgsVectorLayer,QgsMessageLog,Qgis
 from PyQt5 import QtWidgets
@@ -43,6 +44,8 @@ class SettingsWidget(QtWidgets.QWidget, Ui_SettingsWidget):
         # http://qt-project.org/doc/qt-4.8/designer-using-a-ui-file.html
         # #widgets-and-dialogs-with-auto-connect
         self.setupUi(self)
+        self.listWidget.setSelectionMode(QtWidgets.QAbstractItemView.SelectionMode.ExtendedSelection)
+        self.listWidget.itemChanged.connect(self.item_changed)
         self.layer_dict = dict()
         self.comboBox_layer.currentTextChanged.connect(self.layer_changed)
         self.reload_layer_combobox()
@@ -51,6 +54,13 @@ class SettingsWidget(QtWidgets.QWidget, Ui_SettingsWidget):
         self.accept.connect(self.save_settings)
         QgsMessageLog.logMessage(f"Icon Path: {get_icon_path()}", "StreckenKM", Qgis.Info)
         self.setWindowIcon(QIcon(get_icon_path()))
+
+    def item_changed(self,focus_item:QListWidgetItem):
+        new_checkstate = focus_item.checkState()
+        items = self.listWidget.selectedItems()
+        for item in items:
+            item.setCheckState(new_checkstate)
+
 
     def reload_layer_combobox(self, selected_layer=None):
         layers = QgsProject.instance().layerTreeRoot().children()
