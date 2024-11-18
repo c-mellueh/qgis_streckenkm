@@ -77,9 +77,9 @@ class StreckenkmFinder:
         self.field_name = None
         self.field_is_real = None
         self.ignore_sidings = None
+        self.displayed_fields = list()
         self.connect_settings_widget()
-
-        # Declare MapTool
+         # Declare MapTool
         self.map_tool: NearestPointFinder | None = None
 
     def create_spatial_index(self):
@@ -212,10 +212,11 @@ class StreckenkmFinder:
         self.settings_widget.accept.connect(self.update_settings)
 
     def update_settings(self):
-        layer, self.field_name, self.field_is_real, self.ignore_sidings, self.selected_fields = self.settings_widget.get_selected_settings()
+        layer, self.field_name, self.field_is_real, self.ignore_sidings, self.displayed_fields = self.settings_widget.get_selected_settings()
         if layer != self.layer:
             self.layer = layer
             self.create_spatial_index()
+        self.activate_maptool()
 
     def open_settings(self):
         self.settings_widget.reload_layer_combobox(self.layer)
@@ -229,7 +230,7 @@ class StreckenkmFinder:
 
     def activate_maptool(self):
         self.map_tool = NearestPointFinder(self.iface, self.spatial_index, self.layer, self.field_name,
-                                           self.field_is_real, self.ignore_sidings)
+                                           self.field_is_real, self.ignore_sidings,self.displayed_fields)
         self.iface.mapCanvas().setMapTool(self.map_tool)
 
     def run(self):

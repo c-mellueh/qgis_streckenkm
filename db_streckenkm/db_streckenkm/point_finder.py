@@ -1,19 +1,43 @@
-
-import os.path
-import re
-
-from qgis.PyQt.QtCore import QCoreApplication, QSettings, QTranslator, Qt
-from qgis.PyQt.QtGui import QColor, QIcon
-from qgis.PyQt.QtWidgets import QAction, QMessageBox
-from qgis.core import QgsDistanceArea, QgsPointXY, QgsSpatialIndex,QgsMessageLog,Qgis
+from PyQt5.QtWidgets import QPushButton
+from qgis.PyQt.QtCore import Qt,QSize
+from qgis.PyQt.QtGui import QColor
+from qgis.PyQt.QtWidgets import QDialogButtonBox, QLabel, QMessageBox, QWidget
+from qgis.core import Qgis, QgsDistanceArea, QgsMessageLog, QgsPointXY, QgsSpatialIndex
 from qgis.core import QgsFeature, QgsGeometry, QgsProject, QgsSimpleLineSymbolLayer, QgsVectorLayer
 from qgis.gui import QgsHighlight, QgsMapToolEmitPoint
+from PyQt5.QtWidgets import QWidget
 from . import string_to_real
+from ..ui.Popup_ui import Ui_Form
 
 NEIGHBOR_SAMPLE_SIZE = 100
 
+
+class Popup(QWidget, Ui_Form):
+    def __init__(self, km_value, value_list: list[tuple[str, str]]):
+        super().__init__()
+        self.setupUi(self)
+        self.label_value.setText(str(km_value))
+
+        index = 0
+        for index, (value_name, value) in enumerate(value_list):
+            self.gridLayout.addWidget(QLabel(value_name), index + 1, 0, 1, 1)
+            self.gridLayout.addWidget(QLabel(str(value)), index + 1, 1, 1, 1)
+            button = QPushButton()
+            button.setText("")
+            button.setMaximumSize(QSize(24, 24))
+            self.gridLayout.addWidget(button, index + 1, 2, 1, 1)
+
+        self.buttonBox = QDialogButtonBox(self)
+        self.buttonBox.setStandardButtons(QDialogButtonBox.StandardButton.Ok)
+        self.buttonBox.setObjectName("buttonBox")
+        self.gridLayout.addWidget(self.buttonBox, index + 2, 0, 1, 3)
+        self.buttonBox.accepted.connect(self.close)
+        self.buttonBox.accepted.connect(self.hide)
+
+
 class NearestPointFinder(QgsMapToolEmitPoint):
-    def __init__(self, iface, spatial_index, layer: QgsVectorLayer,field_name,field_is_real,ignore_sidings):
+    def __init__(self, iface, spatial_index, layer: QgsVectorLayer, field_name, field_is_real, ignore_sidings,
+                 displayed_field_names: list[str]):
         self.canvas = iface.mapCanvas()
         super().__init__(self.canvas)
         self.iface = iface
@@ -29,7 +53,8 @@ class NearestPointFinder(QgsMapToolEmitPoint):
         self.field_is_real = field_is_real
         self.ignore_sidings = ignore_sidings
         self.field_name = field_name
-
+        self.displayed_field_names = displayed_field_names
+        self.popup:Popup|None = None
 
     def create_hidden_layer(self):
         epsg_code = self.layer.crs().authid()
@@ -62,7 +87,7 @@ class NearestPointFinder(QgsMapToolEmitPoint):
     def __del__(self):
         """Remove the layer from the project."""
         QgsProject.instance().removeMapLayer(self.temp_layer)
-        QgsMessageLog.logMessage("Point finder will be deleted","Custom Log",Qgis.Info)
+        QgsMessageLog.logMessage("Point finder will be deleted", "Custom Log", Qgis.Info)
 
         if self.highlight:
             self.highlight.hide()
@@ -82,6 +107,15 @@ class NearestPointFinder(QgsMapToolEmitPoint):
                 nearest_dist = distance
         return nearest_feature
 
+    def get_value_list(self,feature: QgsFeature):
+        value_tuples = list()
+        for name in self.displayed_field_names:
+            value = feature[name] if name in feature.fields().names() else ""
+            if isinstance(value,float):
+                value = round(value,3)
+            value_tuples.append((name,value))
+        return value_tuples
+
     def canvasReleaseEvent(self, event):
         if not self.layer or not self.spatial_index:
             QMessageBox.warning(None, "Warning", "No valid point layer or spatial index.")
@@ -100,21 +134,17 @@ class NearestPointFinder(QgsMapToolEmitPoint):
         nearest_geom = nearest_feature.geometry()
         rec_dist, closest_point, next_index, is_left = nearest_geom.closestSegmentWithContext(click_point)
         dist = self.get_partial_line_length(nearest_feature.geometry(), next_index - 1, closest_point)
-        strecken_nr = nearest_feature[
-            "GKA_STRECKEGLEISNR"] if "GKA_STRECKEGLEISNR" in nearest_feature.fields().names() else "No StreckengleisNr"
-        strecken_km_text = nearest_feature[
-            "VON_KM_V"] if "VON_KM_V" in nearest_feature.fields().names() else "No StreckenKm"
+        strecken_km_text = nearest_feature[self.field_name] if self.field_name in nearest_feature.fields().names() else ""
 
         self.draw_line(QgsPointXY(click_point), closest_point)
         if not strecken_km_text:
             QMessageBox.information(None, "Kein Hauptgleis", "Streckenkilometer nicht vorhanden")
             return
-        position = string_to_real(strecken_km_text) + dist / 1000
+        position = round(string_to_real(strecken_km_text) + dist / 1000,3)
+        value_list = self.get_value_list(nearest_feature)
 
-        # Display information
-        QMessageBox.information(None, "StreckenNr",
-                                f"Name: {strecken_nr}\nStrecken Km: {position:.3f}\n index: {next_index}")
-
+        self.popup = Popup(position,value_list)
+        self.popup.show()
     def get_partial_line_length(self, line: QgsGeometry, index: int, new_point):
         line_strings = line.asMultiPolyline()
         cumulative_length = 0
