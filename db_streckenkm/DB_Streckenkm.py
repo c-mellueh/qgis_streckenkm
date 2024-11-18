@@ -351,12 +351,22 @@ class StreckenkmFinder:
         """Create the menu entries and toolbar icons inside the QGIS GUI."""
 
         icon_path = os.path.join(os.path.dirname(__file__), "icon.png")
+
+        #Add Toolbar Action
         self.add_action(
             icon_path,
             text=self.tr(u'Streckenkilometer'),
             callback=self.run,
             parent=self.iface.mainWindow(),
             add_to_toolbar=True)
+
+        #Add Settings Action
+        self.add_action(
+            icon_path,
+            text=self.tr(u'Settings'),
+            callback=self.open_settings,
+            parent=self.iface.mainWindow(),
+            add_to_toolbar=False)
 
         # will be set False in run()
         self.first_start = True

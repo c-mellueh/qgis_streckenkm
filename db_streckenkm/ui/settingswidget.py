@@ -72,6 +72,8 @@ class SettingsWidget(QtWidgets.QWidget, Ui_SettingsWidget):
 
     def reload_attribute_combobox(self, selected_field = None):
         layer,_,_,_ = self.get_selected_settings()
+        if not isinstance(layer,QgsVectorLayer):
+            return
         field_names = [field.name() for field in layer.fields()]
         self.comboBox_field.clear()
         self.comboBox_field.addItems(field_names)
