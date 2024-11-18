@@ -1,12 +1,9 @@
-from PyQt5.QtGui import QIcon
-from PyQt5.QtWidgets import QPushButton
-from PyQt5.QtWidgets import QWidget
 from qgis.PyQt.QtCore import QSize, Qt
-from qgis.PyQt.QtWidgets import QDialogButtonBox, QLabel, QMessageBox,QApplication,QDockWidget
-
+from qgis.PyQt.QtWidgets import QDialogButtonBox, QLabel, QMessageBox,QApplication,QDockWidget,QPushButton,QWidget
+from qgis.PyQt.QtGui import QIcon
 from ..ui.DataWidget_ui import Ui_Form
+
 import os
-NEIGHBOR_SAMPLE_SIZE = 100
 from .. import get_icon_path
 
 class DataWidget(QWidget, Ui_Form):

@@ -22,10 +22,8 @@
  ***************************************************************************/
 """
 
-from PyQt5 import QtCore, QtWidgets
-from PyQt5.QtGui import QIcon
-from PyQt5.QtWidgets import QListWidgetItem
 from qgis.PyQt import QtCore, QtWidgets
+from qgis.PyQt.QtGui import QIcon
 from qgis.core import Qgis, QgsMessageLog, QgsProject, QgsSpatialIndex, QgsVectorLayer
 
 from db_streckenkm import get_icon_path
@@ -79,7 +77,7 @@ class SettingsWidget(QtWidgets.QWidget, Ui_Form):
         self.spatial_index_dict[self.layer] = QgsSpatialIndex(self.layer.getFeatures())
         self.spatial_index_created.emit()
 
-    def item_changed(self, focus_item: QListWidgetItem):
+    def item_changed(self, focus_item: QtWidgets.QListWidgetItem):
         new_checkstate = focus_item.checkState()
         items = self.listWidget.selectedItems()
         for item in items:

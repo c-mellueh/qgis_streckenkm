@@ -1,21 +1,14 @@
-from PyQt5.QtCore import pyqtSignal
-from PyQt5.QtGui import QIcon
-from PyQt5.QtWidgets import QPushButton
-from PyQt5.QtWidgets import QWidget
-from qgis.PyQt.QtCore import QSize, Qt
+from qgis.PyQt.QtCore import QSize, Qt,pyqtSignal
 from qgis.PyQt.QtGui import QColor
 from qgis.PyQt.QtWidgets import QDialogButtonBox, QLabel, QMessageBox,QApplication,QDockWidget
-from qgis.core import Qgis, QgsDistanceArea, QgsMessageLog, QgsPointXY, QgsSpatialIndex,QgsWkbTypes
+from qgis.core import Qgis, QgsDistanceArea, QgsMessageLog, QgsPointXY,QgsWkbTypes
 from qgis.core import QgsFeature, QgsGeometry, QgsProject, QgsSimpleLineSymbolLayer, QgsVectorLayer
 from qgis.gui import QgsHighlight, QgsMapToolEmitPoint
 
 from . import string_to_real
-from ..ui.Popup_ui import Ui_Form
 from .settings_widget import SettingsWidget
 from .data_widget import DataWidget
-import os
 NEIGHBOR_SAMPLE_SIZE = 100
-from .. import get_icon_path
 
 class NearestPointFinder(QgsMapToolEmitPoint):
     point_found = pyqtSignal(float,float,list)
