@@ -30,7 +30,7 @@ from qgis.core import QgsSpatialIndex
 
 from .db_streckenkm.point_finder import NearestPointFinder
 from .ui.settingswidget import SettingsWidget
-
+from . import get_icon_path
 
 class StreckenkmFinder:
     """QGIS Plugin Implementation."""
@@ -179,7 +179,7 @@ class StreckenkmFinder:
     def initGui(self):
         """Create the menu entries and toolbar icons inside the QGIS GUI."""
 
-        icon_path = os.path.join(os.path.dirname(__file__), "icon.png")
+        icon_path = get_icon_path()
 
         # Add Toolbar Action
         self.add_action(
@@ -222,6 +222,7 @@ class StreckenkmFinder:
         self.settings_widget.reload_layer_combobox(self.layer)
         self.settings_widget.layer_changed()
         self.settings_widget.show()
+        self.settings_widget.activateWindow()
 
     def map_tool_changed(self):
         if self.map_tool is not None:

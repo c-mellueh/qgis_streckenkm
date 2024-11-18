@@ -23,11 +23,12 @@
 """
 
 from PyQt5 import QtCore, QtWidgets
+from PyQt5.QtGui import QIcon
 from qgis.PyQt import QtCore, QtWidgets
-from qgis.core import QgsProject, QgsVectorLayer
-
+from qgis.core import QgsProject, QgsVectorLayer,QgsMessageLog,Qgis
+from PyQt5 import QtWidgets
 from .SettingsWidget_ui import Ui_SettingsWidget
-
+from .. import get_icon_path
 
 class SettingsWidget(QtWidgets.QWidget, Ui_SettingsWidget):
     accept = QtCore.pyqtSignal()
@@ -48,6 +49,8 @@ class SettingsWidget(QtWidgets.QWidget, Ui_SettingsWidget):
         self.accept.connect(self.hide)
         self.reject.connect(self.hide)
         self.accept.connect(self.save_settings)
+        QgsMessageLog.logMessage(f"Icon Path: {get_icon_path()}", "StreckenKM", Qgis.Info)
+        self.setWindowIcon(QIcon(get_icon_path()))
 
     def reload_layer_combobox(self, selected_layer=None):
         layers = QgsProject.instance().layerTreeRoot().children()

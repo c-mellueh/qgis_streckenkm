@@ -22,6 +22,7 @@
  ***************************************************************************/
  This script initializes the plugin, making it known to QGIS.
 """
+import os
 
 
 # noinspection PyPep8Naming
@@ -34,3 +35,8 @@ def classFactory(iface):  # pylint: disable=invalid-name
     #
     from .DB_Streckenkm import StreckenkmFinder
     return StreckenkmFinder(iface)
+
+def get_icon_path(icon_name = None):
+    if icon_name is None:
+        icon_name = "icon.png"
+    return os.path.join(os.path.dirname(__file__),"icons", icon_name)
