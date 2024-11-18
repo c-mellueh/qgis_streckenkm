@@ -1,0 +1,12 @@
+{
+  "files": [
+    "__init__.py",
+    "db_streckenkm\\data_widget.py",
+    "db_streckenkm\\dock_widget.py",
+    "db_streckenkm\\point_finder.py",
+    "db_streckenkm\\settings_widget.py",
+    "ui\\DataWidget.ui",
+    "ui\\SettingsWidget.ui",
+    "i18n\\translation_de.ts"
+  ]
+}

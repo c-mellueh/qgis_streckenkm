@@ -24,7 +24,7 @@
 """
 import os
 
-
+__version__ = "0.1.0"
 # noinspection PyPep8Naming
 def classFactory(iface):  # pylint: disable=invalid-name
     """Load StreckenkmFinder class from file StreckenkmFinder.
@@ -40,3 +40,6 @@ def get_icon_path(icon_name = None):
     if icon_name is None:
         icon_name = "icon.png"
     return os.path.join(os.path.dirname(__file__),"icons", icon_name)
+
+if __name__ == "__main__":
+    pass
