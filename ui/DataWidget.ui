@@ -84,7 +84,7 @@
    <item row="1" column="0">
     <widget class="QLabel" name="label_ortho">
      <property name="text">
-      <string>Orthogonal Distance[m]: </string>
+      <string>Orthogonal Distance [m]: </string>
      </property>
     </widget>
    </item>

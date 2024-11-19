@@ -65,4 +65,4 @@ class Ui_DataWidget(object):
         self.label_ortho_val.setText(_translate("DataWidget", "Value Ortho"))
         self.label_km.setText(_translate("DataWidget", "Position [km]:"))
         self.label_km_val.setText(_translate("DataWidget", "Value Kilomater"))
-        self.label_ortho.setText(_translate("DataWidget", "Orthogonal Distance[m]: "))
+        self.label_ortho.setText(_translate("DataWidget", "Orthogonal Distance [m]: "))

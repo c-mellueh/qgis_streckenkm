@@ -84,7 +84,7 @@ class KmCalculator:
         transformer = QgsCoordinateTransform(source_crs, target_crs, transform_context)
         return transformer.transform(point)
 
-    def find_closest_point(self, point: QgsPointXY):
+    def find_closest_point(self, point: QgsPointXY) -> tuple[QgsFeature|None,QgsPointXY|None,float|None]:
         nearest_feature = self.get_neighbor(point)
         if not nearest_feature:
             return self.NO_POINTS_FOUND, None, None
@@ -120,7 +120,7 @@ class KmCalculator:
 
 
 class NearestPointFinder(QgsMapToolEmitPoint):
-    point_found = pyqtSignal(float, float, list)
+    point_found = pyqtSignal(QgsPointXY,QgsPointXY,float, float, QgsFeature)
 
     def __init__(self, iface, settings_widget: SettingsWidget):
         self.canvas = iface.mapCanvas()
@@ -138,6 +138,12 @@ class NearestPointFinder(QgsMapToolEmitPoint):
         self.data_widget: DataWidget | None = None
 
     @property
+    def output_layer(self):
+        if self.settings_widget.checkBox_save_points.isChecked():
+            return self.settings_widget.comboBox_output.currentLayer()
+        return None
+
+    @property
     def spatial_index(self):
         return self.settings_widget.spatial_index_dict.get(self.settings_widget.layer)
 
@@ -147,23 +153,19 @@ class NearestPointFinder(QgsMapToolEmitPoint):
 
     @property
     def start_pos_field_name(self):
-        settings = self.settings_widget.get_settings()
-        return settings[1]
+        return self.settings_widget.get_current_settings()[2]
 
     @property
-    def field_is_real(self) -> bool:
-        settings = self.settings_widget.get_settings()
-        return settings[2]
+    def field_is_float(self) -> bool:
+        return self.settings_widget.get_current_settings()[4]
 
     @property
     def ignore_empty(self):
-        settings = self.settings_widget.get_settings()
-        return settings[3]
+        return self.settings_widget.get_current_settings()[5]
 
     @property
-    def displayed_field_names(self):
-        settings = self.settings_widget.get_settings()
-        return settings[4]
+    def checked_fields(self):
+        return self.settings_widget.get_current_settings()[6]
 
     def __del__(self):
         """Remove the layer from the project."""
@@ -173,14 +175,7 @@ class NearestPointFinder(QgsMapToolEmitPoint):
         if self.highlight:
             self.highlight.hide()
 
-    def get_value_list(self, feature: QgsFeature) -> list[tuple[str, str]]:
-        value_tuples = list()
-        for name in self.displayed_field_names:
-            value = feature[name] if name in feature.fields().names() else ""
-            if isinstance(value, float):
-                value = round(value, 3)
-            value_tuples.append((name, value))
-        return value_tuples
+
 
     def canvasReleaseEvent(self, event):
         if not self.search_layer or not self.spatial_index:
@@ -189,7 +184,7 @@ class NearestPointFinder(QgsMapToolEmitPoint):
 
         click_point = QgsPointXY(self.toMapCoordinates(event.pos()))
         calculator = KmCalculator(self.search_layer, self.spatial_index, self.start_pos_field_name, self.ignore_empty,
-                                  self.field_is_real)
+                                  self.field_is_float)
         nearest_feature, closest_point, position = calculator.find_closest_point(click_point)
 
         if nearest_feature == KmCalculator.NO_POINTS_FOUND:
@@ -212,7 +207,7 @@ class NearestPointFinder(QgsMapToolEmitPoint):
                                     self.tr(f"Field '{self.start_pos_field_name}' doesn't match required format"))
             return
         # Create Popup
-        self.point_found.emit(position, ortho_dist, self.get_value_list(nearest_feature))
+        self.point_found.emit(click_point,closest_point,position, ortho_dist, nearest_feature)
 
     def highlight_feature(self, feature: QgsFeature):
         # Remove previous highlight
