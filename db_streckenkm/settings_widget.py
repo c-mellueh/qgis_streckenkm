@@ -24,7 +24,8 @@
 
 from qgis.PyQt import QtCore, QtWidgets
 from qgis.PyQt.QtGui import QIcon
-from qgis.core import Qgis, QgsMessageLog, QgsProject, QgsSpatialIndex, QgsVectorLayer
+from qgis.core import Qgis, QgsSpatialIndex, QgsVectorLayer
+from qgis.gui import QgsFieldComboBox, QgsMapLayerComboBox
 
 from .. import get_icon_path
 from ..ui.ui_SettingsWidget import Ui_SettingsWidget
@@ -44,19 +45,20 @@ class SettingsWidget(QtWidgets.QWidget, Ui_SettingsWidget):
         self.setupUi(self)
         self.listWidget.setSelectionMode(QtWidgets.QAbstractItemView.SelectionMode.ExtendedSelection)
         self.listWidget.itemChanged.connect(self.item_changed)
-        self.comboBox_layer.currentTextChanged.connect(self.layer_changed)
+        self.comboBox_layer: QgsMapLayerComboBox
+        self.comboBox_field: QgsFieldComboBox
+
+        self.comboBox_layer.setShowCrs(True)
+        self.comboBox_layer.setFilters(Qgis.LayerFilter.VectorLayer)
+
+        self.comboBox_layer.layerChanged.connect(self.layer_changed)
         self.setWindowIcon(QIcon(get_icon_path()))
         self.spatial_index_dict: dict[QgsVectorLayer, QgsSpatialIndex] = dict()
         self.settings_dict: dict[QgsVectorLayer, list] = dict()
 
-        self.reload_layer_combobox()
         self.pushButton.clicked.connect(self.create_spatial_index)
         self.checkBox_select_all.clicked.connect(self.select_all_clicked)
-
-    def paintEvent(self, a0):
-        super().paintEvent(a0)
-        layer = self.get_settings()[0]
-        self.reload_layer_combobox(layer)
+        self.layer_changed()
 
     def select_all_clicked(self):
         cs = self.checkBox_select_all.checkState()
@@ -65,12 +67,11 @@ class SettingsWidget(QtWidgets.QWidget, Ui_SettingsWidget):
 
     @property
     def layer(self) -> QgsVectorLayer | None:
-        layer_name = self.comboBox_layer.currentText()
-        layers = QgsProject.instance().mapLayers().values()
-        for layer in layers:
-            if layer.name() == layer_name:
-                return layer
-        return None
+        return self.comboBox_layer.currentLayer()
+
+    @property
+    def start_field(self):
+        return self.comboBox_field.currentField()
 
     def create_spatial_index(self):
         # Build spatial index for the point layer
@@ -93,22 +94,8 @@ class SettingsWidget(QtWidgets.QWidget, Ui_SettingsWidget):
         checkstates = set(item.checkState() for item in items)
         return checkstates == {QtCore.Qt.CheckState.Checked}
 
-    def reload_layer_combobox(self, selected_layer=None):
-        layer_names = sorted(l.name() for l in QgsProject.instance().mapLayers().values())
-
-        if set(layer_names) == {self.comboBox_layer.itemText(i) for i in range(self.comboBox_layer.count())}:
-            return
-
-        # Clear the contents of the comboBox from previous runs
-        self.comboBox_layer.clear()
-        # Populate the comboBox with names of all the loaded layers
-        QgsMessageLog.logMessage(str(layer_names), "StreckenKM", Qgis.Info)
-        self.comboBox_layer.addItems(layer_names)
-        if selected_layer:
-            self.comboBox_layer.setCurrentText(selected_layer.name())
-
     def get_settings(self):
-        field_name = self.comboBox_field.currentText()
+        field_name = self.start_field
         attribute_is_real = self.checkBox_is_float.isChecked()
         ignore_sidings = self.checkBox_ignore_empty.isChecked()
         checked_fields = self.get_checked_field_names()
@@ -123,7 +110,8 @@ class SettingsWidget(QtWidgets.QWidget, Ui_SettingsWidget):
         return checked_fields
 
     def layer_changed(self):
-        layer, _, _, _, _ = self.get_settings()
+        layer = self.layer
+        self.comboBox_field.setLayer(layer)
         if not isinstance(layer, QgsVectorLayer):
             return
         if self.settings_dict.get(layer) is None:
@@ -132,10 +120,6 @@ class SettingsWidget(QtWidgets.QWidget, Ui_SettingsWidget):
             field_name, attribute_is_real, ignore_sidings, checked_fields = self.settings_dict[layer]
 
         field_names = [field.name() for field in layer.fields()]
-        self.comboBox_field.clear()
-        self.comboBox_field.addItems(field_names)
-        if field_name:
-            self.comboBox_field.setCurrentText(field_name)
         self.checkBox_is_float.setChecked(True if attribute_is_real else False)
         self.checkBox_ignore_empty.setChecked(True if ignore_sidings else False)
 
