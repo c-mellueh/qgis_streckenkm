@@ -11,7 +11,7 @@ from .data_widget import DataWidget
 from .settings_widget import SettingsWidget
 
 NEIGHBOR_SAMPLE_SIZE = 100
-
+LAYER_NAME = "DB_StreckenKm_Line_Layer"
 
 class KmCalculator:
     NO_POINTS_FOUND = 1
@@ -253,7 +253,8 @@ class NearestPointFinder(QgsMapToolEmitPoint):
     def create_line_layer(self):
         # Create Layer
         epsg_code = QgsProject.instance().crs().authid()
-        self.line_layer = QgsVectorLayer(f"LineString?crs={epsg_code}", "Nearest Line", "memory")
+        self.line_layer = QgsVectorLayer(f"LineString?crs={epsg_code}", LAYER_NAME, "memory")
+        self.line_layer.setCustomProperty("isScratchLayer",False)
         QgsProject.instance().addMapLayer(self.line_layer)
         tree_view = self.iface.layerTreeView()
         model = self.iface.layerTreeView().layerTreeModel()

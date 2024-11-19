@@ -26,13 +26,13 @@ from PyQt5.QtWidgets import QMessageBox
 from qgis.PyQt.QtCore import QCoreApplication, QSettings, QTranslator,Qt
 from qgis.PyQt.QtGui import QIcon
 from qgis.PyQt.QtWidgets import QAction
-from qgis.core import QgsSpatialIndex
+from qgis.core import QgsProject
 from qgis.gui import QgisInterface
 
 from PyQt5.QtCore import Qt
 
 from .db_streckenkm.dock_widget import DockWidget
-from .db_streckenkm.point_finder import NearestPointFinder
+from .db_streckenkm.point_finder import NearestPointFinder,LAYER_NAME
 from . import get_icon_path
 
 class StreckenkmFinder:
@@ -76,6 +76,7 @@ class StreckenkmFinder:
         self.dockwidget:DockWidget = None
         # Declare MapTool
         self.map_tool: NearestPointFinder | None = None
+        QCoreApplication.instance().aboutToQuit.connect(self.destroy_hidden_layer)
 
     def tr(self, message):
         """Get the translation for a string using Qt translation API.
@@ -195,10 +196,19 @@ class StreckenkmFinder:
             self.map_tool.hide_highlight()
             self.map_tool.delete_lines()
 
-    def map_tool_changed(self):
-        if self.map_tool is not None:
-            self.map_tool.hide_highlight()
-            self.map_tool.delete_lines()
+        layers = QgsProject.instance().mapLayers()
+        for layer_id, layer in layers.items():
+            if layer.name() == LAYER_NAME:
+                QgsProject.instance().removeMapLayer(layer_id)
+
+    def destroy_hidden_layer(self):
+        self.map_tool.hide_highlight()
+        self.map_tool.delete_lines()
+        QgsProject.instance().removeMapLayer(self.map_tool.line_layer.id())
+
+    def map_tool_changed(self,new_tool,old_tool):
+        if isinstance(old_tool, NearestPointFinder):
+            self.destroy_hidden_layer()
 
     def activate_maptool(self):
         self.dockwidget.tab_widget.setCurrentIndex(self.dockwidget.data_widget_index)
