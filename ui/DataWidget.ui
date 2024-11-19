@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>Form</class>
- <widget class="QWidget" name="Form">
+ <class>DataWidget</class>
+ <widget class="QWidget" name="DataWidget">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -31,7 +31,7 @@
    <item row="0" column="0">
     <widget class="QLabel" name="label_km">
      <property name="text">
-      <string>Kilometer</string>
+      <string>Position [km]:</string>
      </property>
     </widget>
    </item>
@@ -64,7 +64,7 @@
       </size>
      </property>
      <property name="text">
-      <string> </string>
+      <string/>
      </property>
     </widget>
    </item>
@@ -77,14 +77,14 @@
       </size>
      </property>
      <property name="text">
-      <string> </string>
+      <string/>
      </property>
     </widget>
    </item>
    <item row="1" column="0">
     <widget class="QLabel" name="label_ortho">
      <property name="text">
-      <string>Orthogonal Distance</string>
+      <string>Orthogonal Distance[m]: </string>
      </property>
     </widget>
    </item>

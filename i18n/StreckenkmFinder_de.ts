@@ -8,64 +8,78 @@
         <source>StreckenKM</source>
         <translation>StreckenKM</translation>
     </message>
-</context>
-<context>
-    <name>Form</name>
     <message>
-        <location filename="ui/DataWidget_ui.ui" line="14"/>
-        <location filename="ui/SettingsWidget_ui.ui" line="14"/>
+        <location filename="ui/DataWidget.ui" line="14"/>
         <source>Form</source>
         <translation>Dialog</translation>
     </message>
     <message>
-        <location filename="ui/DataWidget_ui.ui" line="27"/>
+        <location filename="ui/DataWidget.ui" line="27"/>
         <source>Value Ortho</source>
         <translation>Wert Ortho</translation>
     </message>
     <message>
-        <location filename="ui/DataWidget_ui.ui" line="34"/>
-        <source>Kilometer</source>
-        <translation>Kilometer</translation>
+        <location filename="ui/DataWidget.ui" line="34"/>
+        <source>Position [km]:</source>
+        <translation>Position [km]:</translation>
     </message>
     <message>
-        <location filename="ui/DataWidget_ui.ui" line="47"/>
+        <source>Kilometer</source>
+        <translation type="obsolete">Kilometer</translation>
+    </message>
+    <message>
+        <location filename="ui/DataWidget.ui" line="47"/>
         <source>Value Kilomater</source>
         <translation>Wert Kilometer</translation>
     </message>
     <message>
-        <location filename="ui/DataWidget_ui.ui" line="87"/>
+        <location filename="ui/DataWidget.ui" line="87"/>
+        <source>Orthogonal Distance[m]: </source>
+        <oldsource>Orthogonal Distance</oldsource>
+        <translation>Orthogonale Distanz [m]:</translation>
+    </message>
+</context>
+<context>
+    <name>Form</name>
+    <message>
+        <source>Form</source>
+        <translation type="vanished">Dialog</translation>
+    </message>
+    <message>
+        <source>Value Ortho</source>
+        <translation type="vanished">Wert Ortho</translation>
+    </message>
+    <message>
+        <source>Kilometer</source>
+        <translation type="vanished">Kilometer</translation>
+    </message>
+    <message>
+        <source>Value Kilomater</source>
+        <translation type="vanished">Wert Kilometer</translation>
+    </message>
+    <message>
         <source>Orthogonal Distance</source>
-        <translation>Orthogonale Distanz</translation>
+        <translation type="vanished">Orthogonale Distanz</translation>
     </message>
     <message>
-        <location filename="ui/SettingsWidget_ui.ui" line="20"/>
         <source>Start_km Field:</source>
-        <translation>Start_km Feld:</translation>
+        <translation type="vanished">Start_km Feld:</translation>
     </message>
     <message>
-        <location filename="ui/SettingsWidget_ui.ui" line="30"/>
         <source>Start_km is Float:</source>
-        <translation>Start_km ist Float:</translation>
+        <translation type="vanished">Start_km ist Float:</translation>
     </message>
     <message>
-        <location filename="ui/SettingsWidget_ui.ui" line="37"/>
-        <source>Layer:</source>
-        <translation></translation>
-    </message>
-    <message>
-        <location filename="ui/SettingsWidget_ui.ui" line="51"/>
         <source>Select All</source>
-        <translation>Alles auswählen</translation>
+        <translation type="vanished">Alles auswählen</translation>
     </message>
     <message>
-        <location filename="ui/SettingsWidget_ui.ui" line="68"/>
         <source>Ignore empty Features:</source>
-        <translation>Leere Features ignorieren:</translation>
+        <translation type="vanished">Leere Features ignorieren:</translation>
     </message>
     <message>
-        <location filename="ui/SettingsWidget_ui.ui" line="85"/>
         <source>Create Spatial Index</source>
-        <translation>Spatial Index erstellen</translation>
+        <translation type="vanished">Spatial Index erstellen</translation>
     </message>
 </context>
 <context>
@@ -109,6 +123,44 @@
         <location filename="db_streckenkm/point_finder.py" line="141"/>
         <source>Field &apos;{self.start_pos_field_name}&apos; doesn&apos;t match required format</source>
         <translation>Feld &apos;{self.start_pos_field_name}&apos; entspricht nicht den Formatvorgaben</translation>
+    </message>
+</context>
+<context>
+    <name>SettingsWidget</name>
+    <message>
+        <location filename="ui/SettingsWidget.ui" line="14"/>
+        <source>Form</source>
+        <translation>Dialog</translation>
+    </message>
+    <message>
+        <location filename="ui/SettingsWidget.ui" line="20"/>
+        <source>Start_km Field:</source>
+        <translation>Start_km Feld:</translation>
+    </message>
+    <message>
+        <location filename="ui/SettingsWidget.ui" line="30"/>
+        <source>Start_km is Float:</source>
+        <translation>Start_km ist Float:</translation>
+    </message>
+    <message>
+        <location filename="ui/SettingsWidget.ui" line="37"/>
+        <source>Layer:</source>
+        <translation>Layer:</translation>
+    </message>
+    <message>
+        <location filename="ui/SettingsWidget.ui" line="51"/>
+        <source>Select All</source>
+        <translation>Alles auswählen</translation>
+    </message>
+    <message>
+        <location filename="ui/SettingsWidget.ui" line="68"/>
+        <source>Ignore empty Features:</source>
+        <translation>Leere Features ignorieren:</translation>
+    </message>
+    <message>
+        <location filename="ui/SettingsWidget.ui" line="85"/>
+        <source>Create Spatial Index</source>
+        <translation>Spatial Index erstellen</translation>
     </message>
 </context>
 </TS>

@@ -1,12 +1,12 @@
 from qgis.PyQt.QtCore import QSize, Qt
 from qgis.PyQt.QtWidgets import QDialogButtonBox, QLabel, QMessageBox,QApplication,QDockWidget,QPushButton,QWidget
 from qgis.PyQt.QtGui import QIcon
-from ..ui.DataWidget_ui import Ui_Form
+from ..ui.ui_DataWidget import Ui_DataWidget
 
 import os
 from .. import get_icon_path
 
-class DataWidget(QWidget, Ui_Form):
+class DataWidget(QWidget, Ui_DataWidget):
     ui_rows = 3 #Rows that are defined in the UI
     def __init__(self, km_value,orthogonal_distance):
         super().__init__()

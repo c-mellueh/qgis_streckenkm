@@ -26,11 +26,11 @@ from qgis.PyQt import QtCore, QtWidgets
 from qgis.PyQt.QtGui import QIcon
 from qgis.core import Qgis, QgsMessageLog, QgsProject, QgsSpatialIndex, QgsVectorLayer
 
-from db_streckenkm import get_icon_path
-from db_streckenkm.ui.SettingsWidget_ui import Ui_Form
+from .. import get_icon_path
+from ..ui.ui_SettingsWidget import Ui_SettingsWidget
 
 
-class SettingsWidget(QtWidgets.QWidget, Ui_Form):
+class SettingsWidget(QtWidgets.QWidget, Ui_SettingsWidget):
     spatial_index_created = QtCore.pyqtSignal()
 
     def __init__(self, parent=None):

@@ -7,6 +7,6 @@
     "db_streckenkm\\settings_widget.py",
     "ui\\DataWidget.ui",
     "ui\\SettingsWidget.ui",
-    "i18n\\translation_de.ts"
+    "i18n\\StreckenkmFinder_de.ts"
   ]
 }

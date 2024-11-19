@@ -2,8 +2,8 @@ from qgis.PyQt.QtCore import Qt
 from qgis.PyQt.QtGui import QIcon
 from qgis.PyQt.QtWidgets import QDockWidget, QTabWidget, QVBoxLayout
 
-from db_streckenkm.db_streckenkm.data_widget import DataWidget
-from db_streckenkm.db_streckenkm.settings_widget import SettingsWidget
+from .data_widget import DataWidget
+from .settings_widget import SettingsWidget
 from .. import get_icon_path
 
 
