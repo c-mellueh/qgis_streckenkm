@@ -1,7 +1,8 @@
 from qgis.PyQt.QtCore import Qt, pyqtSignal
 from qgis.PyQt.QtGui import QColor
 from qgis.PyQt.QtWidgets import QMessageBox
-from qgis.core import Qgis, QgsDistanceArea, QgsMessageLog, QgsPointXY, QgsWkbTypes
+from qgis.core import Qgis, QgsCoordinateReferenceSystem, QgsCoordinateTransform, QgsDistanceArea, QgsMessageLog, \
+    QgsPointXY, QgsWkbTypes
 from qgis.core import QgsFeature, QgsGeometry, QgsProject, QgsSimpleLineSymbolLayer, QgsVectorLayer
 from qgis.gui import QgsHighlight, QgsMapToolEmitPoint
 
@@ -74,6 +75,15 @@ class KmCalculator:
         cumulative_length += partial_line.length()
         return cumulative_length
 
+    def transform_to_project_crs(self, point: QgsPointXY):
+        source_crs = self.search_layer.crs()
+        target_crs = QgsProject.instance().crs()
+        transform_context = QgsProject.instance().transformContext()
+
+        # Create the coordinate transformer
+        transformer = QgsCoordinateTransform(source_crs, target_crs, transform_context)
+        return transformer.transform(point)
+
     def find_closest_point(self, point: QgsPointXY):
         nearest_feature = self.get_neighbor(point)
         if not nearest_feature:
@@ -83,11 +93,14 @@ class KmCalculator:
             # Search for closest Point
             ortho_dist, closest_point, next_index, is_left = nearest_feature.geometry().closestSegmentWithContext(
                 point)
+
             dist = self.get_partial_line_length(nearest_feature.geometry(), next_index - 1, closest_point)
 
         else:
             closest_point = nearest_feature.geometry().asPoint()
             dist = 0
+
+        closest_point = self.transform_to_project_crs(closest_point)
         start_pos = nearest_feature[
             self.start_pos_field_name] if self.start_pos_field_name in nearest_feature.fields().names() else None
         if start_pos is None:
@@ -244,7 +257,7 @@ class NearestPointFinder(QgsMapToolEmitPoint):
 
     def create_line_layer(self):
         # Create Layer
-        epsg_code = self.search_layer.crs().authid()
+        epsg_code = QgsProject.instance().crs().authid()
         self.line_layer = QgsVectorLayer(f"LineString?crs={epsg_code}", "Nearest Line", "memory")
         QgsProject.instance().addMapLayer(self.line_layer)
         tree_view = self.iface.layerTreeView()
