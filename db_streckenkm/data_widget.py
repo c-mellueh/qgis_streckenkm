@@ -20,13 +20,14 @@ class DataWidget(QWidget, Ui_DataWidget):
         self.ui_rows = self.value_layout.rowCount()
 
 
-        self.pushButton_km.clicked.connect(lambda:self.copy_to_clipboard(str(km_value)))
+        self.pushButton_km.clicked.connect(self.copy_km)
         self.pushButton_km.setIcon(self.copy_icon)
         self.pushButton_km.setText("")
 
-        self.pushButton_ortho.clicked.connect(lambda:self.copy_to_clipboard(str(km_value)))
+        self.pushButton_ortho.clicked.connect(self.copy_ortho)
         self.pushButton_ortho.setIcon(self.copy_icon)
         self.pushButton_ortho.setText("")
+
 
     def clear_layout(self):
         """Clear all items in the layout."""
@@ -58,3 +59,9 @@ class DataWidget(QWidget, Ui_DataWidget):
         self.label_km_val.setText(str(km_value))
     def set_ortho(self,orthogonal_distance):
         self.label_ortho_val.setText(str(orthogonal_distance))
+
+    def copy_km(self):
+        self.copy_to_clipboard(self.label_km_val.text())
+
+    def copy_ortho(self):
+        self.copy_to_clipboard(self.label_ortho.text())
