@@ -122,8 +122,8 @@ class NearestPointFinder(QgsMapToolEmitPoint):
             self.start_pos_field_name] if self.start_pos_field_name in nearest_feature.fields().names() else ""
 
         #Draw Line to Closest Point
-        self.draw_line(QgsPointXY(click_point), closest_point)
-
+        line = self.draw_line(QgsPointXY(click_point), closest_point)
+        ortho_dist = line.geometry().length()
         #Handle Empty Value
         if not start_pos:
             QMessageBox.information(None, self.tr("Value not found"), self.tr("Kilometer value doesn't exist"))
@@ -213,6 +213,7 @@ class NearestPointFinder(QgsMapToolEmitPoint):
         self.line_layer.updateExtents()
         self.line_layer.triggerRepaint()
         self.line = line_feature
+        return self.line
 
     def create_line_layer(self):
         #Create Layer
