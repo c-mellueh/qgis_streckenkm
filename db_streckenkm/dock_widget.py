@@ -33,5 +33,5 @@ class DockWidget(QDockWidget):
         self.tab_widget.setCurrentIndex(self.data_widget_index)
         self.tab_widget.setTabEnabled(self.data_widget_index, True)
         self.data_widget.fill_value_list(value_list)
-        self.data_widget.set_km(round(position, 3))
-        self.data_widget.set_ortho(round(ortho_dist, 3))
+        self.data_widget.set_km(round(position, 5))
+        self.data_widget.set_ortho(round(ortho_dist, 5))
