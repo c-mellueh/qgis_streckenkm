@@ -33,7 +33,6 @@ from PyQt5.QtCore import Qt
 
 from .db_streckenkm.dock_widget import DockWidget
 from .db_streckenkm.point_finder import NearestPointFinder
-from db_streckenkm.db_streckenkm.settings_widget import SettingsWidget
 from . import get_icon_path
 
 class StreckenkmFinder:
@@ -71,7 +70,6 @@ class StreckenkmFinder:
         # Must be set in initGui() to survive plugin reloads
         self.first_start = None
         self.canvas = iface.mapCanvas()
-        self.spatial_index = None
         self.iface.mapCanvas().mapToolSet.connect(self.map_tool_changed)
 
         # Declare DockWidget Widget
@@ -190,7 +188,12 @@ class StreckenkmFinder:
                 self.tr(u'&DB_Streckenkm'),
                 action)
             self.iface.removeToolBarIcon(action)
+        if self.dockwidget:
+            self.iface.removeDockWidget(self.dockwidget)
 
+        if self.map_tool:
+            self.map_tool.hide_highlight()
+            self.map_tool.delete_lines()
 
     def map_tool_changed(self):
         if self.map_tool is not None:
