@@ -185,6 +185,12 @@ class StreckenkmFinder:
 
     def unload(self):
         """Removes the plugin menu item and icon from QGIS GUI."""
+
+        if self.map_tool is not None:
+            self.map_tool.deleteLater()
+            if self.canvas.mapTool() == self.map_tool:
+                self.canvas.setMapTool(None, clean=True)
+
         for action in self.actions:
             self.iface.removePluginMenu(
                 self.tr(u'&DB_Streckenkm'),
@@ -192,16 +198,12 @@ class StreckenkmFinder:
             self.iface.removeToolBarIcon(action)
         if self.dockwidget:
             self.iface.removeDockWidget(self.dockwidget)
-
-        if self.map_tool:
-            del self.map_tool
-
         layers = QgsProject.instance().mapLayers()
         for layer_id, layer in layers.items():
             if layer.name() == LAYER_NAME:
                 QgsProject.instance().removeMapLayer(layer_id)
         self.remove_highlights()
-
+        self.canvas.repaint()
     def destroy_hidden_layer(self):
         self.remove_highlights()
         self.map_tool.delete_lines()
@@ -245,6 +247,9 @@ class StreckenkmFinder:
         if not self.dockwidget.isVisible():
             self.dockwidget.activate()
             return
+
+        if not self.dockwidget.hasFocus():
+            self.dockwidget.activate()
 
         if not self.dockwidget.is_maptool_available():
             QMessageBox.warning(None,self.tr("Warning"), self.tr("You need to create a Spatial Index first"))

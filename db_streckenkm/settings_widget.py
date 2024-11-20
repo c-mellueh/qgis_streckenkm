@@ -23,7 +23,7 @@
 """
 
 from PyQt5 import QtCore, QtGui, QtWidgets
-from qgis.core import Qgis, QgsSpatialIndex, QgsVectorLayer,QgsMessageLog
+from qgis.core import Qgis, QgsSpatialIndex, QgsVectorLayer
 from qgis.gui import QgsFieldComboBox, QgsMapLayerComboBox
 
 from .. import get_icon_path
@@ -252,8 +252,7 @@ class SettingsWidget(QtWidgets.QWidget, Ui_SettingsWidget):
     def save_settings(self):
         if self.settings_save_is_blocked:
             return
-        QgsMessageLog.logMessage(f"Save Settings {self.layer.name() if self.layer else 'Empty'}", "StreckenKM",
-                                 Qgis.Info)
+
 
         self.settings_dict[self.layer] = self.get_current_settings()
 
@@ -262,6 +261,5 @@ class SettingsWidget(QtWidgets.QWidget, Ui_SettingsWidget):
 
     def get_saved_setting(self, layer: QgsVectorLayer|None) -> tuple[QgsVectorLayer,QgsVectorLayer,str,str,bool,bool,list[str],dict[str,str],bool]|tuple:
         if not self.is_setting_existing(layer) or layer is None:
-            QgsMessageLog.logMessage(f"No Settings Existing for Layer {layer.name() if layer else 'Empty'}", "StreckenKM", Qgis.Info)
             return None, None, None, None, None,None,None,None,None
         return self.settings_dict[layer]

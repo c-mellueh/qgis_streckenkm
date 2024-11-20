@@ -1,8 +1,8 @@
-from PyQt5.QtCore import Qt, pyqtSignal,QVariant
+from PyQt5.QtCore import Qt, pyqtSignal,QMetaType
 from PyQt5.QtGui import QColor,QFont
 from PyQt5.QtWidgets import QMessageBox
-from qgis.gui import QgsHighlight, QgsMapToolEmitPoint,QgsMapMouseEvent
-from qgis.core import Qgis, QgsDistanceArea, QgsMessageLog, QgsPoint, QgsPointXY, QgsPalLayerSettings, QgsField, \
+from qgis.gui import QgsHighlight, QgsMapToolEmitPoint,QgsMapMouseEvent,QgisInterface
+from qgis.core import Qgis, QgsDistanceArea, QgsPoint, QgsPointXY, QgsPalLayerSettings, QgsField, \
     QgsTextFormat, QgsTextBufferSettings, QgsVectorLayerSimpleLabeling
 from qgis.core import QgsFeature, QgsGeometry, QgsProject, QgsSimpleLineSymbolLayer, QgsVectorLayer
 
@@ -15,7 +15,7 @@ class MapTool(QgsMapToolEmitPoint):
     point_found = pyqtSignal(QgsPointXY,QgsPointXY,float, float, QgsFeature)
     highlight_created = pyqtSignal(QgsHighlight)
     request_highlight_deleted = pyqtSignal()
-    def __init__(self, iface, settings_widget: SettingsWidget):
+    def __init__(self, iface:QgisInterface, settings_widget: SettingsWidget):
         self.canvas = iface.mapCanvas()
         super().__init__(self.canvas)
         self.iface = iface
@@ -63,9 +63,8 @@ class MapTool(QgsMapToolEmitPoint):
     def __del__(self):
         """Remove the layer from the project."""
         QgsProject.instance().removeMapLayer(self.line_layer)
-        QgsMessageLog.logMessage("Point finder will be deleted", "StreckenKM", Qgis.Info)
-
         self.request_highlight_deleted.emit()
+
         self.delete_lines()
 
 
@@ -159,7 +158,7 @@ class MapTool(QgsMapToolEmitPoint):
         epsg_code = QgsProject.instance().crs().authid()
         self.line_layer = QgsVectorLayer(f"LineString?crs={epsg_code}", LAYER_NAME, "memory")
         self.line_layer.setCustomProperty("isScratchLayer",False)
-        field = QgsField("id",QVariant.Int)
+        field = QgsField("id",QMetaType.Int)
         if self.line_layer.dataProvider().addAttributes([field]):
             self.line_layer.updateFields()
 

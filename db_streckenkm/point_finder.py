@@ -1,5 +1,4 @@
-from qgis.core import Qgis, QgsCoordinateReferenceSystem, QgsCoordinateTransform, QgsMessageLog, \
-    QgsPointXY, QgsWkbTypes
+from qgis.core import QgsCoordinateReferenceSystem, QgsCoordinateTransform, QgsPointXY, QgsWkbTypes
 from qgis.core import QgsFeature, QgsGeometry, QgsProject, QgsVectorLayer
 
 from . import string_to_real
