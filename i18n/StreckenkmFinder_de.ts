@@ -4,7 +4,7 @@
 <context>
     <name>DataWidget</name>
     <message>
-        <location filename="db_streckenkm/data_widget.py" line="22"/>
+        <location filename="db_streckenkm/data_widget.py" line="24"/>
         <source>StreckenKM</source>
         <translation>StreckenKM</translation>
     </message>
@@ -14,29 +14,49 @@
         <translation>Dialog</translation>
     </message>
     <message>
-        <location filename="ui/DataWidget.ui" line="27"/>
+        <location filename="ui/DataWidget.ui" line="47"/>
         <source>Value Ortho</source>
         <translation>Wert Ortho</translation>
     </message>
     <message>
-        <location filename="ui/DataWidget.ui" line="34"/>
+        <location filename="ui/DataWidget.ui" line="71"/>
+        <source>Position [km]</source>
+        <translation></translation>
+    </message>
+    <message>
+        <location filename="ui/DataWidget.ui" line="79"/>
+        <source>Distance [km]</source>
+        <translation>Distanz [km]</translation>
+    </message>
+    <message>
+        <location filename="ui/DataWidget.ui" line="110"/>
         <source>Position [km]:</source>
         <translation>Position [km]:</translation>
+    </message>
+    <message>
+        <location filename="ui/DataWidget.ui" line="130"/>
+        <source>Sum:</source>
+        <translation>Summe:</translation>
+    </message>
+    <message>
+        <location filename="ui/DataWidget.ui" line="137"/>
+        <source>TextLabel</source>
+        <translation>Text</translation>
     </message>
     <message>
         <source>Kilometer</source>
         <translation type="obsolete">Kilometer</translation>
     </message>
     <message>
-        <location filename="ui/DataWidget.ui" line="47"/>
+        <location filename="ui/DataWidget.ui" line="26"/>
         <source>Value Kilomater</source>
         <translation>Wert Kilometer</translation>
     </message>
     <message>
-        <location filename="ui/DataWidget.ui" line="87"/>
+        <location filename="ui/DataWidget.ui" line="33"/>
         <source>Orthogonal Distance [m]: </source>
         <oldsource>Orthogonal Distance[m]: </oldsource>
-        <translation>Orthogonale Distanz [m]:</translation>
+        <translation type="unfinished">Orthogonale Distanz [m]:</translation>
     </message>
 </context>
 <context>
@@ -85,44 +105,36 @@
 <context>
     <name>NearestPointFinder</name>
     <message>
-        <location filename="db_streckenkm/point_finder.py" line="182"/>
         <source>Warning</source>
-        <translation>Achtung</translation>
+        <translation type="vanished">Achtung</translation>
     </message>
     <message>
-        <location filename="db_streckenkm/point_finder.py" line="182"/>
         <source>No valid point layer or spatial index.</source>
-        <translation>Kein Valider Punkt-Layer oder Spatial Index.</translation>
+        <translation type="vanished">Kein Valider Punkt-Layer oder Spatial Index.</translation>
     </message>
     <message>
-        <location filename="db_streckenkm/point_finder.py" line="191"/>
         <source>Info</source>
-        <translation>Info</translation>
+        <translation type="vanished">Info</translation>
     </message>
     <message>
-        <location filename="db_streckenkm/point_finder.py" line="191"/>
         <source>No points found nearby.</source>
-        <translation>Keine Punkte in der Nähe gefunden.</translation>
+        <translation type="vanished">Keine Punkte in der Nähe gefunden.</translation>
     </message>
     <message>
-        <location filename="db_streckenkm/point_finder.py" line="201"/>
         <source>Value not found</source>
-        <translation>Wert nicht gefunden</translation>
+        <translation type="vanished">Wert nicht gefunden</translation>
     </message>
     <message>
-        <location filename="db_streckenkm/point_finder.py" line="201"/>
         <source>Kilometer value doesn&apos;t exist</source>
-        <translation>Kilometer Wert existiert nicht</translation>
+        <translation type="vanished">Kilometer Wert existiert nicht</translation>
     </message>
     <message>
-        <location filename="db_streckenkm/point_finder.py" line="206"/>
         <source>Value format wrong</source>
-        <translation>Format von Wert falsch</translation>
+        <translation type="vanished">Format von Wert falsch</translation>
     </message>
     <message>
-        <location filename="db_streckenkm/point_finder.py" line="207"/>
         <source>Field &apos;{self.start_pos_field_name}&apos; doesn&apos;t match required format</source>
-        <translation>Feld &apos;{self.start_pos_field_name}&apos; entspricht nicht den Formatvorgaben</translation>
+        <translation type="vanished">Feld &apos;{self.start_pos_field_name}&apos; entspricht nicht den Formatvorgaben</translation>
     </message>
 </context>
 <context>
