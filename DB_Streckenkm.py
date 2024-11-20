@@ -211,6 +211,7 @@ class StreckenkmFinder:
     def activate_maptool(self):
         self.dockwidget.tab_widget.setCurrentIndex(self.dockwidget.data_widget_index)
         self.map_tool = MapTool(self.iface, self.dockwidget.settings_widget)
+        self.map_tool.data_widget = self.dockwidget.data_widget
         self.dockwidget.maptool = self.map_tool
         self.map_tool.point_found.connect(self.dockwidget.point_found)
         self.iface.mapCanvas().setMapTool(self.map_tool)

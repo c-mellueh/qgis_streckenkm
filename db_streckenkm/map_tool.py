@@ -132,7 +132,8 @@ class MapTool(QgsMapToolEmitPoint):
         Draws line between start_point and end_point
         """
         # Delete the existing line
-        self.delete_lines()
+        if not self.measure_between_points or not self.data_widget.tableWidgetsum.values:
+            self.delete_lines()
 
         # Create a line feature
         line_geom = QgsGeometry.fromPolylineXY([start_point, end_point])

@@ -1,14 +1,19 @@
 from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
 from qgis.PyQt.QtCore import Qt
 from qgis.PyQt.QtGui import QIcon
 from qgis.PyQt.QtWidgets import QDockWidget, QTabWidget, QVBoxLayout
-from qgis.core  import QgsPointXY,QgsFeature,QgsGeometry,QgsProject,QgsCoordinateTransform,QgsVectorLayer
+from qgis.core import QgsCoordinateTransform, QgsFeature, QgsGeometry, QgsPointXY, QgsProject, QgsVectorLayer
+
 from .data_widget import DataWidget
 from .settings_widget import SettingsWidget
 from .. import get_icon_path
-from typing import TYPE_CHECKING
+
 if TYPE_CHECKING:
     from .map_tool import MapTool
+
 
 class DockWidget(QDockWidget):
     def __init__(self, parent=None, iface=None):
@@ -27,8 +32,7 @@ class DockWidget(QDockWidget):
         self.setFloating(True)
         self.tab_widget.setTabEnabled(self.data_widget_index, False)
         self.setAllowedAreas(Qt.DockWidgetArea.AllDockWidgetAreas)
-        self.maptool:MapTool|None = None
-
+        self.maptool: MapTool | None = None
 
     def is_maptool_available(self):
         layer = self.settings_widget.get_current_settings()[0]
@@ -43,10 +47,7 @@ class DockWidget(QDockWidget):
             value_tuples.append((name, value))
         return value_tuples
 
-
-
-
-    def point_found(self, click_point:QgsPointXY, line_point, position, ortho_dist, input_feature:QgsFeature):
+    def point_found(self, click_point: QgsPointXY, line_point, position, ortho_dist, input_feature: QgsFeature):
         self.tab_widget.setCurrentIndex(self.data_widget_index)
         self.tab_widget.setTabEnabled(self.data_widget_index, True)
 
@@ -57,14 +58,12 @@ class DockWidget(QDockWidget):
             self.data_widget.set_measure_tab_visible(False)
             self.data_widget.tableWidgetsum.clear_table()
 
-
         value_list = self.get_value_list(input_feature)
         self.data_widget.fill_value_list(value_list)
         self.data_widget.set_km(round(position, 5))
         self.data_widget.set_ortho(round(ortho_dist, 5))
         if click_point is None or not self.settings_widget.checkBox_save_points.isChecked():
             return
-
 
         source_crs = QgsProject.instance().crs()
         output_layer = self.settings_widget.comboBox_layer_output.currentLayer()
@@ -73,20 +72,19 @@ class DockWidget(QDockWidget):
 
         # Create the coordinate transformer
         transformer = QgsCoordinateTransform(source_crs, target_crs, transform_context)
-        click_point =  transformer.transform(click_point)
+        click_point = transformer.transform(click_point)
 
-        output_layer:QgsVectorLayer
+        output_layer: QgsVectorLayer
         output_layer.startEditing()
         feature = QgsFeature()
         feature.setFields(output_layer.fields())
         feature.setGeometry(QgsGeometry.fromPointXY(click_point))
 
-
         settings = self.settings_widget.get_current_settings()
         matchup = settings[7]
 
         feature[settings[3]] = position
-        for input_field_name,ouput_field_name in matchup.items():
+        for input_field_name, ouput_field_name in matchup.items():
             feature[ouput_field_name] = input_feature[input_field_name]
         output_layer.dataProvider().addFeature(feature)
         output_layer.commitChanges()
