@@ -1,7 +1,7 @@
 from PyQt5.QtCore import Qt, pyqtSignal
 from PyQt5.QtGui import QColor
 from PyQt5.QtWidgets import QMessageBox
-from qgis.gui import QgsHighlight, QgsMapToolEmitPoint
+from qgis.gui import QgsHighlight, QgsMapToolEmitPoint,QgsMapMouseEvent
 from qgis.core import Qgis, QgsDistanceArea, QgsMessageLog  , QgsPointXY
 from qgis.core import QgsFeature, QgsGeometry, QgsProject, QgsSimpleLineSymbolLayer, QgsVectorLayer
 
@@ -27,6 +27,8 @@ class MapTool(QgsMapToolEmitPoint):
         self.distance_calc = QgsDistanceArea()
         self.distance_calc.setEllipsoid(self.search_layer.crs().authid())
         self.data_widget: DataWidget | None = None
+        self.measure_between_points = False
+        self.last_dataset = None
 
     @property
     def output_layer(self):
@@ -65,13 +67,13 @@ class MapTool(QgsMapToolEmitPoint):
 
         if self.highlight:
             self.highlight.hide()
-
-
-
-    def canvasReleaseEvent(self, event):
+        self.delete_lines()
+    def canvasReleaseEvent(self, event:QgsMapMouseEvent):
         if not self.search_layer or not self.spatial_index:
             QMessageBox.warning(None, self.tr("Warning"), self.tr("No valid point layer or spatial index."))
             return
+
+        self.measure_between_points = True if event.modifiers() & Qt.ControlModifier else False
 
         click_point = QgsPointXY(self.toMapCoordinates(event.pos()))
         calculator = NearestPointFinder(self.search_layer, self.spatial_index, self.start_pos_field_name, self.ignore_empty,
@@ -97,8 +99,10 @@ class MapTool(QgsMapToolEmitPoint):
             QMessageBox.information(None, self.tr("Value format wrong"),
                                     self.tr(f"Field '{self.start_pos_field_name}' doesn't match required format"))
             return
+
         # Create Popup
         self.point_found.emit(click_point,closest_point,position, ortho_dist, nearest_feature)
+        self.last_dataset = (click_point,position,nearest_feature)
 
     def highlight_feature(self, feature: QgsFeature):
         # Remove previous highlight
@@ -118,9 +122,10 @@ class MapTool(QgsMapToolEmitPoint):
         """
         delete all existing lines
         """
-        self.line_layer.dataProvider().truncate()
-        self.line_layer.updateExtents()
-        self.line_layer.triggerRepaint()
+        if self.line_layer.isValid():
+            self.line_layer.dataProvider().truncate()
+            self.line_layer.updateExtents()
+            self.line_layer.triggerRepaint()
 
     def draw_line(self, start_point, end_point):
         """

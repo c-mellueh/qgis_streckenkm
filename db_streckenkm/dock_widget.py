@@ -1,3 +1,4 @@
+from __future__ import annotations
 from qgis.PyQt.QtCore import Qt
 from qgis.PyQt.QtGui import QIcon
 from qgis.PyQt.QtWidgets import QDockWidget, QTabWidget, QVBoxLayout
@@ -5,7 +6,9 @@ from qgis.core  import QgsPointXY,QgsFeature,QgsGeometry,QgsProject,QgsCoordinat
 from .data_widget import DataWidget
 from .settings_widget import SettingsWidget
 from .. import get_icon_path
-
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+    from .map_tool import MapTool
 
 class DockWidget(QDockWidget):
     def __init__(self, parent=None, iface=None):
@@ -24,6 +27,8 @@ class DockWidget(QDockWidget):
         self.setFloating(True)
         self.tab_widget.setTabEnabled(self.data_widget_index, False)
         self.setAllowedAreas(Qt.DockWidgetArea.AllDockWidgetAreas)
+        self.maptool:MapTool|None = None
+
 
     def is_maptool_available(self):
         layer = self.settings_widget.get_current_settings()[0]
@@ -39,9 +44,19 @@ class DockWidget(QDockWidget):
         return value_tuples
 
 
+
+
     def point_found(self, click_point:QgsPointXY, line_point, position, ortho_dist, input_feature:QgsFeature):
         self.tab_widget.setCurrentIndex(self.data_widget_index)
         self.tab_widget.setTabEnabled(self.data_widget_index, True)
+
+        if self.maptool.measure_between_points:
+            self.data_widget.set_measure_tab_visible(True)
+            self.data_widget.tableWidgetsum.add_row(position)
+        else:
+            self.data_widget.set_measure_tab_visible(False)
+            self.data_widget.tableWidgetsum.clear_table()
+
 
         value_list = self.get_value_list(input_feature)
         self.data_widget.fill_value_list(value_list)

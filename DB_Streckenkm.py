@@ -193,8 +193,7 @@ class StreckenkmFinder:
             self.iface.removeDockWidget(self.dockwidget)
 
         if self.map_tool:
-            self.map_tool.hide_highlight()
-            self.map_tool.delete_lines()
+            del self.map_tool
 
         layers = QgsProject.instance().mapLayers()
         for layer_id, layer in layers.items():
@@ -204,7 +203,6 @@ class StreckenkmFinder:
     def destroy_hidden_layer(self):
         self.map_tool.hide_highlight()
         self.map_tool.delete_lines()
-        QgsProject.instance().removeMapLayer(self.map_tool.line_layer.id())
 
     def map_tool_changed(self,new_tool,old_tool):
         if isinstance(old_tool, MapTool):
@@ -213,6 +211,7 @@ class StreckenkmFinder:
     def activate_maptool(self):
         self.dockwidget.tab_widget.setCurrentIndex(self.dockwidget.data_widget_index)
         self.map_tool = MapTool(self.iface, self.dockwidget.settings_widget)
+        self.dockwidget.maptool = self.map_tool
         self.map_tool.point_found.connect(self.dockwidget.point_found)
         self.iface.mapCanvas().setMapTool(self.map_tool)
 

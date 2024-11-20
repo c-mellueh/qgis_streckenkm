@@ -1,11 +1,13 @@
 import os
 
-from qgis.PyQt.QtCore import QSize
-from qgis.PyQt.QtGui import QIcon
-from qgis.PyQt.QtWidgets import QApplication, QLabel, QPushButton, QWidget
+from PyQt5.QtCore import QSize
+from PyQt5.QtGui import QIcon
+from PyQt5.QtWidgets import QApplication, QLabel, QPushButton, QWidget,QTableWidget
 
 from .. import get_icon_path
 from ..ui.ui_DataWidget import Ui_DataWidget
+
+
 
 
 class DataWidget(QWidget, Ui_DataWidget):
@@ -30,6 +32,12 @@ class DataWidget(QWidget, Ui_DataWidget):
         self.pushButton_ortho.setIcon(self.copy_icon)
         self.pushButton_ortho.setText("")
 
+        self.pushButton_sum.clicked.connect(self.copy_sum)
+        self.pushButton_sum.setIcon(self.copy_icon)
+        self.pushButton_sum.setText("")
+
+        self.tableWidgetsum.row_added.connect(self.update_sum)
+        self.set_measure_tab_visible(False)
     def clear_layout(self):
         """Clear all items in the layout."""
         while self.value_layout.count():
@@ -39,6 +47,15 @@ class DataWidget(QWidget, Ui_DataWidget):
                 widget.deleteLater()  # Delete the widget
             else:
                 del item  # Delete layout items if it's not a widget
+
+    def update_sum(self,value:float):
+        self.label_sum_val.setText(str(round(value,4)))
+
+    def set_measure_tab_visible(self,state:bool):
+        self.tableWidgetsum.setVisible(state)
+        self.label_sum.setVisible(state)
+        self.pushButton_sum.setVisible(state)
+        self.label_sum_val.setVisible(state)
 
     def fill_value_list(self, value_list):
         index = 0
@@ -68,3 +85,6 @@ class DataWidget(QWidget, Ui_DataWidget):
 
     def copy_ortho(self):
         self.copy_to_clipboard(self.label_ortho.text())
+
+    def copy_sum(self):
+        self.copy_to_clipboard(self.label_sum.text())
