@@ -27,7 +27,7 @@ from qgis.PyQt.QtCore import QCoreApplication, QSettings, QTranslator,Qt
 from qgis.PyQt.QtGui import QIcon
 from qgis.PyQt.QtWidgets import QAction
 from qgis.core import QgsProject
-from qgis.gui import QgisInterface
+from qgis.gui import QgisInterface,QgsHighlight
 
 from PyQt5.QtCore import Qt
 
@@ -76,6 +76,7 @@ class StreckenkmFinder:
         self.dockwidget:DockWidget = None
         # Declare MapTool
         self.map_tool: MapTool | None = None
+        self.active_highlights:list[QgsHighlight] = list()
         QCoreApplication.instance().aboutToQuit.connect(self.destroy_hidden_layer)
 
     def tr(self, message):
@@ -199,9 +200,10 @@ class StreckenkmFinder:
         for layer_id, layer in layers.items():
             if layer.name() == LAYER_NAME:
                 QgsProject.instance().removeMapLayer(layer_id)
+        self.remove_highlights()
 
     def destroy_hidden_layer(self):
-        self.map_tool.hide_highlight()
+        self.remove_highlights()
         self.map_tool.delete_lines()
 
     def map_tool_changed(self,new_tool,old_tool):
@@ -213,8 +215,21 @@ class StreckenkmFinder:
         self.map_tool = MapTool(self.iface, self.dockwidget.settings_widget)
         self.map_tool.data_widget = self.dockwidget.data_widget
         self.dockwidget.maptool = self.map_tool
+
         self.map_tool.point_found.connect(self.dockwidget.point_found)
+        self.map_tool.highlight_created.connect(self.map_tool_created_highlight)
+        self.map_tool.request_highlight_deleted.connect(self.remove_highlights)
         self.iface.mapCanvas().setMapTool(self.map_tool)
+
+    def map_tool_created_highlight(self,highlight:QgsHighlight):
+        self.active_highlights.append(highlight)
+
+    def remove_highlights(self):
+        for highlight in self.active_highlights:
+            highlight.hide()
+            del highlight
+        self.active_highlights = list()
+
 
     def run(self):
         """Run method that performs all the real work"""
@@ -226,6 +241,9 @@ class StreckenkmFinder:
             self.dockwidget = DockWidget(self.iface.mainWindow(),self.iface)
             self.iface.addDockWidget(Qt.DockWidgetArea.AllDockWidgetAreas, self.dockwidget)
             self.dockwidget.settings_widget.spatial_index_created.connect(self.activate_maptool)
+            return
+        if not self.dockwidget.isVisible():
+            self.dockwidget.activate()
             return
 
         if not self.dockwidget.is_maptool_available():

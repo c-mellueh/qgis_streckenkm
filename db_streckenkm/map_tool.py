@@ -1,9 +1,9 @@
 from PyQt5.QtCore import Qt, pyqtSignal,QVariant
 from PyQt5.QtGui import QColor,QFont
 from PyQt5.QtWidgets import QMessageBox
-from PyQt5.uic.Compiler.qtproxies import QtCore
 from qgis.gui import QgsHighlight, QgsMapToolEmitPoint,QgsMapMouseEvent
-from qgis.core import Qgis, QgsDistanceArea, QgsMessageLog  , QgsPointXY,QgsPalLayerSettings,QgsField, QgsTextFormat,QgsTextBufferSettings,QgsVectorLayerSimpleLabeling
+from qgis.core import Qgis, QgsDistanceArea, QgsMessageLog, QgsPoint, QgsPointXY, QgsPalLayerSettings, QgsField, \
+    QgsTextFormat, QgsTextBufferSettings, QgsVectorLayerSimpleLabeling
 from qgis.core import QgsFeature, QgsGeometry, QgsProject, QgsSimpleLineSymbolLayer, QgsVectorLayer
 
 from  .point_finder import NearestPointFinder
@@ -13,11 +13,10 @@ LAYER_NAME = "DB_StreckenKm_Line_Layer"
 
 class MapTool(QgsMapToolEmitPoint):
     point_found = pyqtSignal(QgsPointXY,QgsPointXY,float, float, QgsFeature)
-
+    highlight_created = pyqtSignal(QgsHighlight)
+    request_highlight_deleted = pyqtSignal()
     def __init__(self, iface, settings_widget: SettingsWidget):
         self.canvas = iface.mapCanvas()
-        self.highlight: QgsHighlight | None = None
-
         super().__init__(self.canvas)
         self.iface = iface
         self.settings_widget = settings_widget
@@ -66,9 +65,10 @@ class MapTool(QgsMapToolEmitPoint):
         QgsProject.instance().removeMapLayer(self.line_layer)
         QgsMessageLog.logMessage("Point finder will be deleted", "StreckenKM", Qgis.Info)
 
-        if self.highlight:
-            self.highlight.hide()
+        self.request_highlight_deleted.emit()
         self.delete_lines()
+
+
     def canvasReleaseEvent(self, event:QgsMapMouseEvent):
         if not self.search_layer or not self.spatial_index:
             QMessageBox.warning(None, self.tr("Warning"), self.tr("No valid point layer or spatial index."))
@@ -108,17 +108,18 @@ class MapTool(QgsMapToolEmitPoint):
 
     def highlight_feature(self, feature: QgsFeature):
         # Remove previous highlight
-        self.hide_highlight()
+        self.remove_highlights()
 
         # Highlight the new feature
-        self.highlight = QgsHighlight(self.canvas, feature, self.search_layer)
-        self.highlight.setColor(QColor(255, 0, 0))  # Red highlight
-        self.highlight.setWidth(2)
-        self.highlight.show()
+        highlight = QgsHighlight(self.canvas, feature, self.search_layer)
+        highlight.setColor(QColor(255, 0, 0))  # Red highlight
+        highlight.setWidth(2)
+        highlight.show()
+        self.highlight_created.emit(highlight)
 
-    def hide_highlight(self):
-        if self.highlight:
-            self.highlight.hide()
+    def remove_highlights(self):
+        self.request_highlight_deleted.emit()
+
 
     def delete_lines(self):
         """

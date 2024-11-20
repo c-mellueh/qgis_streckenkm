@@ -2,11 +2,11 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from qgis.PyQt.QtCore import Qt
-from qgis.PyQt.QtGui import QIcon
-from qgis.PyQt.QtWidgets import QDockWidget, QTabWidget, QVBoxLayout
-from qgis.core import QgsCoordinateTransform, QgsFeature, QgsGeometry, QgsPointXY, QgsProject, QgsVectorLayer
-
+from PyQt5.QtCore import Qt
+from PyQt5.QtGui import QIcon
+from PyQt5.QtWidgets import QDockWidget, QTabWidget, QVBoxLayout
+from qgis.core import QgsCoordinateTransform, QgsFeature, QgsGeometry, QgsPointXY, QgsProject, QgsVectorLayer,QgsMessageLog
+from qgis.gui import QgisInterface
 from .data_widget import DataWidget
 from .settings_widget import SettingsWidget
 from .. import get_icon_path
@@ -16,7 +16,7 @@ if TYPE_CHECKING:
 
 
 class DockWidget(QDockWidget):
-    def __init__(self, parent=None, iface=None):
+    def __init__(self, parent=None, iface:QgisInterface=None):
         super(DockWidget, self).__init__(parent)
         self.iface = iface
         self.setWindowTitle("SteckenKM")
@@ -47,7 +47,14 @@ class DockWidget(QDockWidget):
             value_tuples.append((name, value))
         return value_tuples
 
+    def activate(self):
+        self.show()
+        self.raise_()
+        self.focusWidget()
+        self.activateWindow()
+
     def point_found(self, click_point: QgsPointXY, line_point, position, ortho_dist, input_feature: QgsFeature):
+        self.activate()
         self.tab_widget.setCurrentIndex(self.data_widget_index)
         self.tab_widget.setTabEnabled(self.data_widget_index, True)
 
