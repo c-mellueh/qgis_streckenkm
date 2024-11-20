@@ -107,5 +107,4 @@ class Ui_SettingsWidget(object):
         self.checkBox_save_points.setText(_translate("SettingsWidget", "Write Points to Layer"))
         self.label_input.setText(_translate("SettingsWidget", "Input"))
         self.label_output.setText(_translate("SettingsWidget", "Output"))
-from qgsfieldcombobox import QgsFieldComboBox
-from qgsmaplayercombobox import QgsMapLayerComboBox
+from qgis.gui import QgsFieldComboBox,QgsMapLayerComboBox

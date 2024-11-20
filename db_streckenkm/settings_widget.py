@@ -36,11 +36,7 @@ class SettingsWidget(QtWidgets.QWidget, Ui_SettingsWidget):
     def __init__(self, parent=None):
         """Constructor."""
         super(SettingsWidget, self).__init__(parent)
-        # Set up the user interface from Designer through FORM_CLASS.
-        # After self.setupUi() you can access any designer object by doing
-        # self.<objectname>, and you can use autoconnect slots - see
-        # http://qt-project.org/doc/qt-4.8/designer-using-a-ui-file.html
-        # #widgets-and-dialogs-with-auto-connect
+
         self.setupUi(self)
         self.tableWidget.setSelectionMode(QtWidgets.QAbstractItemView.SelectionMode.ExtendedSelection)
         self.tableWidget.itemChanged.connect(self.item_changed)
@@ -179,6 +175,10 @@ class SettingsWidget(QtWidgets.QWidget, Ui_SettingsWidget):
         self.settings_save_is_blocked = True
         self.comboBox_field.setLayer(self.layer)
         settings =  self.get_saved_setting(self.layer)
+        if settings[0] is None:
+            if "VON_KM_V" in [f.name() for f in self.comboBox_field.fields()]:
+                self.comboBox_field.setCurrentText("VON_KM_V")
+
         output_layer = settings[1]
         output_field = settings[3]
         write_to_layer = settings[8]
