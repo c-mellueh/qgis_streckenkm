@@ -32,7 +32,7 @@ from qgis.gui import QgisInterface
 from PyQt5.QtCore import Qt
 
 from .db_streckenkm.dock_widget import DockWidget
-from .db_streckenkm.point_finder import NearestPointFinder,LAYER_NAME
+from .db_streckenkm.map_tool import MapTool,LAYER_NAME
 from . import get_icon_path
 
 class StreckenkmFinder:
@@ -75,7 +75,7 @@ class StreckenkmFinder:
         # Declare DockWidget Widget
         self.dockwidget:DockWidget = None
         # Declare MapTool
-        self.map_tool: NearestPointFinder | None = None
+        self.map_tool: MapTool | None = None
         QCoreApplication.instance().aboutToQuit.connect(self.destroy_hidden_layer)
 
     def tr(self, message):
@@ -207,12 +207,12 @@ class StreckenkmFinder:
         QgsProject.instance().removeMapLayer(self.map_tool.line_layer.id())
 
     def map_tool_changed(self,new_tool,old_tool):
-        if isinstance(old_tool, NearestPointFinder):
+        if isinstance(old_tool, MapTool):
             self.destroy_hidden_layer()
 
     def activate_maptool(self):
         self.dockwidget.tab_widget.setCurrentIndex(self.dockwidget.data_widget_index)
-        self.map_tool = NearestPointFinder(self.iface, self.dockwidget.settings_widget)
+        self.map_tool = MapTool(self.iface, self.dockwidget.settings_widget)
         self.map_tool.point_found.connect(self.dockwidget.point_found)
         self.iface.mapCanvas().setMapTool(self.map_tool)
 
