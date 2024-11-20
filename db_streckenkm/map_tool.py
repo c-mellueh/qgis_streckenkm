@@ -79,7 +79,8 @@ class MapTool(QgsMapToolEmitPoint):
         click_point = QgsPointXY(self.toMapCoordinates(event.pos()))
         calculator = NearestPointFinder(self.search_layer, self.spatial_index, self.start_pos_field_name, self.ignore_empty,
                                         self.field_is_float)
-        nearest_feature, closest_point, position = calculator.find_closest_point(click_point)
+
+        nearest_feature, closest_point, position = calculator.find_closest_point(click_point,QgsProject.instance().crs())
 
         if nearest_feature == NearestPointFinder.NO_POINTS_FOUND:
             QMessageBox.information(None, self.tr("Info"), self.tr("No points found nearby."))

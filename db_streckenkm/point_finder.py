@@ -1,26 +1,29 @@
-
-from qgis.core import Qgis, QgsCoordinateReferenceSystem, QgsCoordinateTransform, QgsDistanceArea, QgsMessageLog, \
+from qgis.core import Qgis, QgsCoordinateReferenceSystem, QgsCoordinateTransform, QgsMessageLog, \
     QgsPointXY, QgsWkbTypes
-from qgis.core import QgsFeature, QgsGeometry, QgsProject, QgsSimpleLineSymbolLayer, QgsVectorLayer
+from qgis.core import QgsFeature, QgsGeometry, QgsProject, QgsVectorLayer
 
 from . import string_to_real
 
 NEIGHBOR_SAMPLE_SIZE = 100
+
 
 class NearestPointFinder:
     NO_POINTS_FOUND = 1
     START_POS_NOT_FOUND = 2
     VALUE_FORMAT_WRONG = 3
 
-    def __init__(self, search_layer, spatial_index, start_pos_field_name, ignore_empty=True, field_is_real=False):
+    def __init__(self, search_layer: QgsVectorLayer, spatial_index, start_pos_field_name, ignore_empty=True,
+                 field_is_real=False):
         self.search_layer = search_layer
         self.spatial_index = spatial_index
         self.start_pos_field_name = start_pos_field_name
         self.ignore_empty = ignore_empty
         self.field_is_real = field_is_real
 
-    def get_neighbor(self, point: QgsPointXY) -> QgsFeature | None:
+    def find_nearest_feature(self, point: QgsPointXY, point_crs: QgsCoordinateReferenceSystem) -> QgsFeature | None:
 
+        if point_crs != self.search_layer.crs():
+            point = self.transform_to_layer_crs(point, point_crs)
         nearest_ids = self.spatial_index.nearestNeighbor(QgsPointXY(point), NEIGHBOR_SAMPLE_SIZE)
         nearest_feature = None
         nearest_dist = float('inf')
@@ -73,42 +76,53 @@ class NearestPointFinder:
         source_crs = self.search_layer.crs()
         target_crs = QgsProject.instance().crs()
         transform_context = QgsProject.instance().transformContext()
-
         # Create the coordinate transformer
         transformer = QgsCoordinateTransform(source_crs, target_crs, transform_context)
         return transformer.transform(point)
 
-    def find_closest_point(self, point: QgsPointXY) -> tuple[QgsFeature|None,QgsPointXY|None,float|None]:
-        nearest_feature = self.get_neighbor(point)
+    def transform_to_layer_crs(self, point: QgsPointXY, source_crs: QgsCoordinateReferenceSystem):
+        return self.transform_from_to(point, source_crs, self.search_layer.crs())
+
+    def transform_from_to(self, point: QgsPointXY, source_crs: QgsCoordinateReferenceSystem,
+                          target_crs: QgsCoordinateReferenceSystem):
+        transform_context = QgsProject.instance().transformContext()
+        # Create the coordinate transformer
+        transformer = QgsCoordinateTransform(source_crs, target_crs, transform_context)
+        return transformer.transform(point)
+
+    def get_feature_value(self, feature, feature_name) -> str | None:
+        return feature[feature_name] if feature_name in feature.fields().names() else None
+
+    def find_closest_point(self, point: QgsPointXY, source_crs: QgsCoordinateReferenceSystem) -> tuple[
+        QgsFeature | None, QgsPointXY | None, float | None]:
+        if source_crs != self.search_layer.crs():
+            point = self.transform_to_layer_crs(point, source_crs)
+
+        local_crs = self.search_layer.crs()
+        nearest_feature = self.find_nearest_feature(point, local_crs)
+
         if not nearest_feature:
             return self.NO_POINTS_FOUND, None, None
 
         if QgsWkbTypes.geometryType(self.search_layer.wkbType()) == QgsWkbTypes.LineGeometry:
             # Search for closest Point
-            ortho_dist, closest_point, next_index, is_left = nearest_feature.geometry().closestSegmentWithContext(
-                point)
-
-            dist = self.get_partial_line_length(nearest_feature.geometry(), next_index - 1, closest_point)
-
+            ortho_dist, nearest_point, next_index, is_left = nearest_feature.geometry().closestSegmentWithContext(point)
+            dist = self.get_partial_line_length(nearest_feature.geometry(), next_index - 1, nearest_point)
         else:
-            closest_point = nearest_feature.geometry().asPoint()
+            nearest_point = nearest_feature.geometry().asPoint()
             dist = 0
 
-        closest_point = self.transform_to_project_crs(closest_point)
-        start_pos = nearest_feature[
-            self.start_pos_field_name] if self.start_pos_field_name in nearest_feature.fields().names() else None
-        if start_pos is None:
-            QgsMessageLog.logMessage(f"{self.start_pos_field_name}", "StreckenKM", Qgis.Info)
-            return nearest_feature, closest_point, self.START_POS_NOT_FOUND
+        nearest_point = self.transform_from_to(nearest_point, local_crs, source_crs)
 
+        start_pos = self.get_feature_value(nearest_feature, self.start_pos_field_name)
+        if start_pos is None:
+            return nearest_feature, nearest_point, self.START_POS_NOT_FOUND
         try:
             if self.field_is_real:
                 position = start_pos + dist / 1000
             else:
-
                 position = string_to_real(start_pos) + dist / 1000
         except TypeError:
-            return nearest_feature, closest_point, self.VALUE_FORMAT_WRONG
+            return nearest_feature, nearest_point, self.VALUE_FORMAT_WRONG
 
-        return nearest_feature, closest_point, position
-
+        return nearest_feature, nearest_point, position
