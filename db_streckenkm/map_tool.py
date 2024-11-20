@@ -1,8 +1,9 @@
-from PyQt5.QtCore import Qt, pyqtSignal
-from PyQt5.QtGui import QColor
+from PyQt5.QtCore import Qt, pyqtSignal,QVariant
+from PyQt5.QtGui import QColor,QFont
 from PyQt5.QtWidgets import QMessageBox
+from PyQt5.uic.Compiler.qtproxies import QtCore
 from qgis.gui import QgsHighlight, QgsMapToolEmitPoint,QgsMapMouseEvent
-from qgis.core import Qgis, QgsDistanceArea, QgsMessageLog  , QgsPointXY
+from qgis.core import Qgis, QgsDistanceArea, QgsMessageLog  , QgsPointXY,QgsPalLayerSettings,QgsField, QgsTextFormat,QgsTextBufferSettings,QgsVectorLayerSimpleLabeling
 from qgis.core import QgsFeature, QgsGeometry, QgsProject, QgsSimpleLineSymbolLayer, QgsVectorLayer
 
 from  .point_finder import NearestPointFinder
@@ -138,6 +139,10 @@ class MapTool(QgsMapToolEmitPoint):
         # Create a line feature
         line_geom = QgsGeometry.fromPolylineXY([start_point, end_point])
         line_feature = QgsFeature()
+
+        if self.measure_between_points:
+            line_feature.setFields(self.line_layer.fields())
+            line_feature.setAttribute("id",self.line_layer.dataProvider().featureCount()+1)
         line_feature.setGeometry(line_geom)
 
         # Add the line feature to the temporary layer
@@ -152,7 +157,12 @@ class MapTool(QgsMapToolEmitPoint):
         epsg_code = QgsProject.instance().crs().authid()
         self.line_layer = QgsVectorLayer(f"LineString?crs={epsg_code}", LAYER_NAME, "memory")
         self.line_layer.setCustomProperty("isScratchLayer",False)
+        field = QgsField("id",QVariant.Int)
+        if self.line_layer.dataProvider().addAttributes([field]):
+            self.line_layer.updateFields()
+
         QgsProject.instance().addMapLayer(self.line_layer)
+        self.line_layer.setLabelsEnabled(True)
         tree_view = self.iface.layerTreeView()
         model = self.iface.layerTreeView().layerTreeModel()
         root = QgsProject().instance().layerTreeRoot()
@@ -179,3 +189,27 @@ class MapTool(QgsMapToolEmitPoint):
         renderer = self.line_layer.renderer()
         symbol = renderer.symbol()
         symbol.changeSymbolLayer(0, line_symbol)
+
+        settings = QgsPalLayerSettings()
+        settings.fieldName = "name"  # Attribute to use for labels
+        settings.placement = Qgis.LabelPlacement.PerimeterCurved
+
+        # Configure text format
+        text_format = QgsTextFormat()
+        text_format.setFont(QFont("Arial", 12))
+        text_format.setSize(10)
+        text_format.setColor(QColor("blue"))
+
+        # Configure text buffer
+        buffer = QgsTextBufferSettings()
+        buffer.setEnabled(True)
+        buffer.setSize(1.5)
+        buffer.setColor(QColor("white"))
+        text_format.setBuffer(buffer)
+
+        settings.setFormat(text_format)
+        settings.fieldName="id"
+        # Apply labeling to the layer
+        labeling = QgsVectorLayerSimpleLabeling(settings)
+        self.line_layer.setLabelsEnabled(True)
+        self.line_layer.setLabeling(labeling)
