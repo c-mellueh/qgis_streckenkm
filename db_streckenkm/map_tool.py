@@ -1,10 +1,10 @@
-from PyQt5.QtCore import Qt, pyqtSignal,QMetaType
+from PyQt5.QtCore import QVariant, Qt, pyqtSignal, QMetaType
 from PyQt5.QtGui import QColor,QFont
 from PyQt5.QtWidgets import QMessageBox
 from qgis.gui import QgsHighlight, QgsMapToolEmitPoint,QgsMapMouseEvent,QgisInterface
 from qgis.core import Qgis, QgsDistanceArea, QgsPoint, QgsPointXY, QgsPalLayerSettings, QgsField, \
     QgsTextFormat, QgsTextBufferSettings, QgsVectorLayerSimpleLabeling
-from qgis.core import QgsFeature, QgsGeometry, QgsProject, QgsSimpleLineSymbolLayer, QgsVectorLayer
+from qgis.core import QgsFeature, QgsGeometry, QgsProject, QgsSimpleLineSymbolLayer, QgsVectorLayer,Qgis
 
 from  .point_finder import NearestPointFinder
 from .data_widget import DataWidget
@@ -158,7 +158,10 @@ class MapTool(QgsMapToolEmitPoint):
         epsg_code = QgsProject.instance().crs().authid()
         self.line_layer = QgsVectorLayer(f"LineString?crs={epsg_code}", LAYER_NAME, "memory")
         self.line_layer.setCustomProperty("isScratchLayer",False)
-        field = QgsField("id",QMetaType.Int)
+        if Qgis.QGIS_VERSION_INT/10000 <3.38:
+            field = QgsField("id",QVariant.Int) #Using QVariant is deprecated since 3.38
+        else:
+            field = QgsField("id",QMetaType.Int)
         if self.line_layer.dataProvider().addAttributes([field]):
             self.line_layer.updateFields()
 
