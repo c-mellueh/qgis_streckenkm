@@ -87,7 +87,7 @@ class Ui_DataWidget(object):
         _translate = QtCore.QCoreApplication.translate
         DataWidget.setWindowTitle(_translate("DataWidget", "Form"))
         self.label_km_val.setText(_translate("DataWidget", "Value Kilomater"))
-        self.label_ortho.setText(_translate("DataWidget", "Orthogonal Distance [m]: "))
+        self.label_ortho.setText(_translate("DataWidget", "Orthogonal Distance [m]:"))
         self.label_ortho_val.setText(_translate("DataWidget", "Value Ortho"))
         item = self.tableWidgetsum.horizontalHeaderItem(0)
         item.setText(_translate("DataWidget", "Position [km]"))

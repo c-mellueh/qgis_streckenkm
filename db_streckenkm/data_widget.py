@@ -2,7 +2,7 @@ import os
 
 from PyQt5.QtCore import QSize
 from PyQt5.QtGui import QIcon
-from PyQt5.QtWidgets import QApplication, QLabel, QPushButton, QWidget,QTableWidget
+from PyQt5.QtWidgets import QApplication, QLabel, QPushButton, QWidget,QMessageBox
 
 from .. import get_icon_path
 from ..ui.ui_DataWidget import Ui_DataWidget
@@ -36,8 +36,11 @@ class DataWidget(QWidget, Ui_DataWidget):
         self.pushButton_sum.setIcon(self.copy_icon)
         self.pushButton_sum.setText("")
 
-        self.tableWidgetsum.row_added.connect(self.update_sum)
+        self.tableWidgetsum.table_updated.connect(self.update_sum)
         self.set_measure_tab_visible(False)
+
+
+
     def clear_layout(self):
         """Clear all items in the layout."""
         while self.value_layout.count():
@@ -50,7 +53,10 @@ class DataWidget(QWidget, Ui_DataWidget):
 
     def update_sum(self,value:float):
         self.label_sum_val.setText(str(round(value,4)))
-
+        if self.tableWidgetsum.distance_factor == self.tableWidgetsum.KILOMETER:
+            self.label_sum.setText(self.tr("Sum [km]:"))
+        else:
+            self.label_sum.setText(self.tr("Sum [m]:"))
     def set_measure_tab_visible(self,state:bool):
         self.tableWidgetsum.setVisible(state)
         self.label_sum.setVisible(state)

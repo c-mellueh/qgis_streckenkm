@@ -5,6 +5,8 @@
     "db_streckenkm\\dock_widget.py",
     "db_streckenkm\\point_finder.py",
     "db_streckenkm\\settings_widget.py",
+    "db_streckenkm\\map_tool.py",
+     "db_streckenkm\\measure_table.py",
     "ui\\DataWidget.ui",
     "ui\\SettingsWidget.ui",
     "i18n\\StreckenkmFinder_de.ts"
