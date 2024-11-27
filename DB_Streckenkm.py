@@ -21,12 +21,12 @@
  ***************************************************************************/
 """
 import os.path
-
+from .db_streckenkm.point_finder import NearestPointFinder
 from PyQt5.QtWidgets import QMessageBox
 from qgis.PyQt.QtCore import QCoreApplication, QSettings, QTranslator,Qt
 from qgis.PyQt.QtGui import QIcon
 from qgis.PyQt.QtWidgets import QAction
-from qgis.core import QgsProject
+from qgis.core import QgsProject,QgsVectorLayer
 from qgis.gui import QgisInterface,QgsHighlight
 
 from PyQt5.QtCore import Qt
@@ -213,6 +213,9 @@ class StreckenkmFinder:
             self.destroy_hidden_layer()
 
     def activate_maptool(self):
+        self.dockwidget.tab_widget.setTabEnabled(self.dockwidget.data_widget_index, True)
+        self.dockwidget.tab_widget.setTabEnabled(self.dockwidget.layer_transformer_index, True)
+
         self.dockwidget.tab_widget.setCurrentIndex(self.dockwidget.data_widget_index)
         self.map_tool = MapTool(self.iface, self.dockwidget.settings_widget)
         self.map_tool.data_widget = self.dockwidget.data_widget

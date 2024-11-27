@@ -10,7 +10,7 @@ from qgis.gui import QgisInterface
 from .data_widget import DataWidget
 from .settings_widget import SettingsWidget
 from .. import get_icon_path
-
+from .point_finder import NearestPointFinder
 if TYPE_CHECKING:
     from .map_tool import MapTool
 
@@ -95,3 +95,26 @@ class DockWidget(QDockWidget):
             feature[ouput_field_name] = input_feature[input_field_name]
         output_layer.dataProvider().addFeature(feature)
         output_layer.commitChanges()
+
+    def run_layer_transform(self):
+        search_layer: QgsVectorLayer = self.settings_widget.output_layer
+        field_name: str = self.settings_widget.output_field
+        km_layer = self.settings_widget.layer
+        spatial_index = self.settings_widget.spatial_index_dict.get(km_layer)
+        input_field_name = self.settings_widget.start_field
+        ignore_empty = self.settings_widget.checkBox_ignore_empty.isChecked()
+        field_is_real = self.settings_widget.checkBox_is_float.isChecked()
+        field_map = self.settings_widget.get_field_matchup()
+        point_finder = NearestPointFinder(km_layer,spatial_index,input_field_name,ignore_empty,field_is_real)
+
+        search_layer.startEditing()
+        for feature in search_layer.getFeatures():
+            feature.fields()
+            index = feature.fields().indexOf(field_name)
+            nearest_feature, closest_point, position = point_finder.find_closest_point(feature.geometry().asPoint(),search_layer.crs())
+            search_layer.changeAttributeValue(feature.id(),index,str(position))
+            for input_field_name, ouput_field_name in field_map.items():
+                value = nearest_feature.attribute(input_field_name)
+                index = feature.fields().indexOf(ouput_field_name)
+                search_layer.changeAttributeValue(feature.id(), index, value)
+        search_layer.commitChanges()

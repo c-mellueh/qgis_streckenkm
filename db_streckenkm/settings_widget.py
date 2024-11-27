@@ -56,6 +56,7 @@ class SettingsWidget(QtWidgets.QWidget, Ui_SettingsWidget):
         self.pushButton.clicked.connect(self.create_spatial_index)
         self.checkBox_select_all.clicked.connect(self.select_all_clicked)
         self.checkBox_save_points.clicked.connect(self.save_points_toggled)
+        self.checkBox_update_layer.clicked.connect(self.update_layer_toggled)
         self.comboBox_layer_output.setFilters(Qgis.LayerFilter.PointLayer)
         self.comboBox_field.currentIndexChanged.connect(self.save_settings)
         self.comboBox_field_output.currentIndexChanged.connect(self.save_settings)
@@ -63,23 +64,40 @@ class SettingsWidget(QtWidgets.QWidget, Ui_SettingsWidget):
         self.checkBox_ignore_empty.stateChanged.connect(self.save_settings)
 
         self.save_points_toggled()
+        self.update_layer_toggled()
         self.layer_changed()
         self.settings_save_is_blocked = False
 
     def save_points_toggled(self):
         cs = self.checkBox_save_points.isChecked()
         items = [ self.comboBox_layer_output,self.comboBox_field_output,self.label_input,self.label_output]
+        if cs:
+            [i.show() for i in items]
+            self.tableWidget.showColumn(1)
+            self.tableWidget.horizontalHeader().show()
+            self.checkBox_update_layer.setEnabled(False)
+        else:
+            [i.hide() for i in items]
+            self.tableWidget.hideColumn(1)
+            self.tableWidget.horizontalHeader().hide()
+            self.checkBox_update_layer.setEnabled(True)
 
+    def update_layer_toggled(self):
+        cs = self.checkBox_update_layer.isChecked()
+        items = [ self.comboBox_layer_output,self.comboBox_field_output,self.label_output_2,self.label_input_2,self.button_update_layer]
 
         if cs:
             [i.show() for i in items]
             self.tableWidget.showColumn(1)
             self.tableWidget.horizontalHeader().show()
-
+            self.checkBox_save_points.setEnabled(False)
         else:
             [i.hide() for i in items]
             self.tableWidget.hideColumn(1)
             self.tableWidget.horizontalHeader().hide()
+            self.checkBox_save_points.setEnabled(True)
+
+
     def select_all_clicked(self):
         cs = self.checkBox_select_all.checkState()
         for i in range(self.tableWidget.rowCount()):

@@ -24,7 +24,7 @@
 """
 import os
 
-__version__ = "0.1.2"
+__version__ = "0.1.3"
 # noinspection PyPep8Naming
 def classFactory(iface):  # pylint: disable=invalid-name
     """Load StreckenkmFinder class from file StreckenkmFinder.
