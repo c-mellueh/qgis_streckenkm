@@ -21,7 +21,6 @@
  ***************************************************************************/
 """
 import os.path
-from .db_streckenkm.point_finder import NearestPointFinder
 from PyQt5.QtWidgets import QMessageBox
 from qgis.PyQt.QtCore import QCoreApplication, QSettings, QTranslator,Qt
 from qgis.PyQt.QtGui import QIcon
@@ -64,7 +63,7 @@ class StreckenkmFinder:
 
         # Declare instance attributes
         self.actions = []
-        self.menu = self.tr(u'&DB_Streckenkm')
+        self.menu = self.tr(u'&Railway Kilometer Finder')
 
         # Check if plugin was started the first time in current QGIS session
         # Must be set in initGui() to survive plugin reloads
@@ -91,7 +90,7 @@ class StreckenkmFinder:
         :rtype: QString
         """
         # noinspection PyTypeChecker,PyArgumentList,PyCallByClass
-        return QCoreApplication.translate('StreckenkmFinder', message)
+        return QCoreApplication.translate('Railway Kilometer Finder', message)
 
     def add_action(
             self,
@@ -175,7 +174,7 @@ class StreckenkmFinder:
         # Add Toolbar Action
         self.add_action(
             icon_path,
-            text=self.tr(u'Streckenkilometer'),
+            text=self.tr(u'Railway Kilometer Finder'),
             callback=self.run,
             parent=self.iface.mainWindow(),
             add_to_toolbar=True)
@@ -193,7 +192,7 @@ class StreckenkmFinder:
 
         for action in self.actions:
             self.iface.removePluginMenu(
-                self.tr(u'&DB_Streckenkm'),
+                self.tr(u'&Railway Kilometer Finder'),
                 action)
             self.iface.removeToolBarIcon(action)
         if self.dockwidget:

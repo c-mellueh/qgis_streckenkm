@@ -9,6 +9,7 @@
      "db_streckenkm\\measure_table.py",
     "ui\\DataWidget.ui",
     "ui\\SettingsWidget.ui",
-    "i18n\\StreckenkmFinder_de.ts"
+    "DB_Streckenkm.py",
+    "i18n/StreckenkmFinder_de.ts"
   ]
 }

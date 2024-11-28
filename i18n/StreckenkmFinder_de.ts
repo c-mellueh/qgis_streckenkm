@@ -4,52 +4,56 @@
 <context>
     <name>DataWidget</name>
     <message>
-        <location filename="../db_streckenkm/data_widget.py" line="24"/>
         <source>StreckenKM</source>
-        <translation>StreckenKM</translation>
+        <translation type="vanished">StreckenKM</translation>
     </message>
     <message>
-        <location filename="../db_streckenkm/data_widget.py" line="57"/>
+        <location filename="db_streckenkm/data_widget.py" line="24"/>
+        <source>Railway Kilometer Finder</source>
+        <translation>Streckenkilometer Suche</translation>
+    </message>
+    <message>
+        <location filename="db_streckenkm/data_widget.py" line="57"/>
         <source>Sum [km]:</source>
         <translation>Summe [km]:</translation>
     </message>
     <message>
-        <location filename="../db_streckenkm/data_widget.py" line="59"/>
+        <location filename="db_streckenkm/data_widget.py" line="59"/>
         <source>Sum [m]:</source>
         <translation>Summe [m]:</translation>
     </message>
     <message>
-        <location filename="../ui/DataWidget.ui" line="14"/>
+        <location filename="ui/DataWidget.ui" line="14"/>
         <source>Form</source>
         <translation>Dialog</translation>
     </message>
     <message>
-        <location filename="../ui/DataWidget.ui" line="47"/>
+        <location filename="ui/DataWidget.ui" line="47"/>
         <source>Value Ortho</source>
         <translation>Wert Ortho</translation>
     </message>
     <message>
-        <location filename="../ui/DataWidget.ui" line="71"/>
+        <location filename="ui/DataWidget.ui" line="71"/>
         <source>Position [km]</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../ui/DataWidget.ui" line="79"/>
+        <location filename="ui/DataWidget.ui" line="79"/>
         <source>Distance [km]</source>
         <translation>Distanz [km]</translation>
     </message>
     <message>
-        <location filename="../ui/DataWidget.ui" line="110"/>
+        <location filename="ui/DataWidget.ui" line="110"/>
         <source>Position [km]:</source>
         <translation>Position [km]:</translation>
     </message>
     <message>
-        <location filename="../ui/DataWidget.ui" line="130"/>
+        <location filename="ui/DataWidget.ui" line="130"/>
         <source>Sum:</source>
         <translation>Summe:</translation>
     </message>
     <message>
-        <location filename="../ui/DataWidget.ui" line="137"/>
+        <location filename="ui/DataWidget.ui" line="137"/>
         <source>TextLabel</source>
         <translation>Text</translation>
     </message>
@@ -58,15 +62,33 @@
         <translation type="obsolete">Kilometer</translation>
     </message>
     <message>
-        <location filename="../ui/DataWidget.ui" line="26"/>
+        <location filename="ui/DataWidget.ui" line="26"/>
         <source>Value Kilomater</source>
         <translation>Wert Kilometer</translation>
     </message>
     <message>
-        <location filename="../ui/DataWidget.ui" line="33"/>
+        <location filename="ui/DataWidget.ui" line="33"/>
         <source>Orthogonal Distance [m]:</source>
         <oldsource>Orthogonal Distance [m]: </oldsource>
         <translation>Orthogonale Distanz [m]:</translation>
+    </message>
+</context>
+<context>
+    <name>DockWidget</name>
+    <message>
+        <location filename="db_streckenkm/dock_widget.py" line="22"/>
+        <source>Railway Kilometer Finder</source>
+        <translation>Streckenkilometer Suche</translation>
+    </message>
+    <message>
+        <location filename="db_streckenkm/dock_widget.py" line="29"/>
+        <source>Settings</source>
+        <translation>Einstellungen</translation>
+    </message>
+    <message>
+        <location filename="db_streckenkm/dock_widget.py" line="31"/>
+        <source>Data</source>
+        <translation>Daten</translation>
     </message>
 </context>
 <context>
@@ -115,42 +137,42 @@
 <context>
     <name>MapTool</name>
     <message>
-        <location filename="../db_streckenkm/map_tool.py" line="73"/>
+        <location filename="db_streckenkm/map_tool.py" line="73"/>
         <source>Warning</source>
         <translation>Achtung</translation>
     </message>
     <message>
-        <location filename="../db_streckenkm/map_tool.py" line="73"/>
+        <location filename="db_streckenkm/map_tool.py" line="73"/>
         <source>No valid point layer or spatial index.</source>
         <translation>Kein Valider Punkt-Layer oder Spatial Index.</translation>
     </message>
     <message>
-        <location filename="../db_streckenkm/map_tool.py" line="85"/>
+        <location filename="db_streckenkm/map_tool.py" line="85"/>
         <source>Info</source>
         <translation>Info</translation>
     </message>
     <message>
-        <location filename="../db_streckenkm/map_tool.py" line="85"/>
+        <location filename="db_streckenkm/map_tool.py" line="85"/>
         <source>No points found nearby.</source>
         <translation>Keine Punkte in der Nähe gefunden.</translation>
     </message>
     <message>
-        <location filename="../db_streckenkm/map_tool.py" line="95"/>
+        <location filename="db_streckenkm/map_tool.py" line="95"/>
         <source>Value not found</source>
         <translation>Wert nicht gefunden</translation>
     </message>
     <message>
-        <location filename="../db_streckenkm/map_tool.py" line="95"/>
+        <location filename="db_streckenkm/map_tool.py" line="95"/>
         <source>Kilometer value doesn&apos;t exist</source>
         <translation>Kilometer Wert existiert nicht</translation>
     </message>
     <message>
-        <location filename="../db_streckenkm/map_tool.py" line="100"/>
+        <location filename="db_streckenkm/map_tool.py" line="100"/>
         <source>Value format wrong</source>
         <translation>Format von Wert falsch</translation>
     </message>
     <message>
-        <location filename="../db_streckenkm/map_tool.py" line="101"/>
+        <location filename="db_streckenkm/map_tool.py" line="101"/>
         <source>Field &apos;{self.start_pos_field_name}&apos; doesn&apos;t match required format</source>
         <translation>Feld &apos;{self.start_pos_field_name}&apos; entspricht nicht den Formatvorgaben</translation>
     </message>
@@ -158,27 +180,27 @@
 <context>
     <name>MeasureTable</name>
     <message>
-        <location filename="../db_streckenkm/measure_table.py" line="22"/>
+        <location filename="db_streckenkm/measure_table.py" line="22"/>
         <source>Toggle Unit</source>
         <translation>Einheit wechseln</translation>
     </message>
     <message>
-        <location filename="../db_streckenkm/measure_table.py" line="41"/>
+        <location filename="db_streckenkm/measure_table.py" line="41"/>
         <source>Position [km]</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../db_streckenkm/measure_table.py" line="42"/>
+        <location filename="db_streckenkm/measure_table.py" line="42"/>
         <source>Position [m]</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../db_streckenkm/measure_table.py" line="42"/>
+        <location filename="db_streckenkm/measure_table.py" line="42"/>
         <source>Distance [km]</source>
         <translation>Distanz [km]</translation>
     </message>
     <message>
-        <location filename="../db_streckenkm/measure_table.py" line="43"/>
+        <location filename="db_streckenkm/measure_table.py" line="43"/>
         <source>Distance [m]</source>
         <translation>Distanz [m]</translation>
     </message>
@@ -221,64 +243,85 @@
 <context>
     <name>SettingsWidget</name>
     <message>
-        <location filename="../ui/SettingsWidget.ui" line="14"/>
+        <location filename="ui/SettingsWidget.ui" line="14"/>
         <source>Form</source>
         <translation>Dialog</translation>
     </message>
     <message>
-        <location filename="../ui/SettingsWidget.ui" line="20"/>
+        <location filename="ui/SettingsWidget.ui" line="84"/>
         <source>Start_km Field:</source>
         <translation>Start_km Feld:</translation>
     </message>
     <message>
-        <location filename="../ui/SettingsWidget.ui" line="44"/>
+        <location filename="ui/SettingsWidget.ui" line="98"/>
+        <location filename="ui/SettingsWidget.ui" line="176"/>
+        <source>Update Layer</source>
+        <translation>Layer aktualisieren</translation>
+    </message>
+    <message>
+        <location filename="ui/SettingsWidget.ui" line="163"/>
         <source>Input Field</source>
         <translation>Eingabe Feld</translation>
     </message>
     <message>
-        <location filename="../ui/SettingsWidget.ui" line="49"/>
+        <location filename="ui/SettingsWidget.ui" line="168"/>
         <source>Output field</source>
         <translation>Ausgabe Feld</translation>
     </message>
     <message>
-        <location filename="../ui/SettingsWidget.ui" line="57"/>
+        <location filename="ui/SettingsWidget.ui" line="57"/>
         <source>Start_km is Float:</source>
         <translation>Start_km ist Float:</translation>
     </message>
     <message>
-        <location filename="../ui/SettingsWidget.ui" line="108"/>
+        <location filename="ui/SettingsWidget.ui" line="91"/>
         <source>Layer:</source>
         <translation>Layer:</translation>
     </message>
     <message>
-        <location filename="../ui/SettingsWidget.ui" line="122"/>
+        <location filename="ui/SettingsWidget.ui" line="43"/>
         <source>Write Points to Layer</source>
         <translation>Punkte in Layer schreiben</translation>
     </message>
     <message>
-        <location filename="../ui/SettingsWidget.ui" line="129"/>
+        <location filename="ui/SettingsWidget.ui" line="74"/>
+        <location filename="ui/SettingsWidget.ui" line="105"/>
         <source>Input</source>
         <translation>Eingabe</translation>
     </message>
     <message>
-        <location filename="../ui/SettingsWidget.ui" line="139"/>
+        <location filename="ui/SettingsWidget.ui" line="20"/>
+        <location filename="ui/SettingsWidget.ui" line="125"/>
         <source>Output</source>
         <translation>Ausgabe</translation>
     </message>
     <message>
-        <location filename="../ui/SettingsWidget.ui" line="101"/>
+        <location filename="ui/SettingsWidget.ui" line="149"/>
         <source>Select All</source>
         <translation>Alles auswählen</translation>
     </message>
     <message>
-        <location filename="../ui/SettingsWidget.ui" line="74"/>
+        <location filename="ui/SettingsWidget.ui" line="50"/>
         <source>Ignore empty Features:</source>
         <translation>Leere Features ignorieren:</translation>
     </message>
     <message>
-        <location filename="../ui/SettingsWidget.ui" line="81"/>
+        <location filename="ui/SettingsWidget.ui" line="135"/>
         <source>Create Spatial Index</source>
         <translation>Spatial Index erstellen</translation>
+    </message>
+</context>
+<context>
+    <name>StreckenkmFinder</name>
+    <message>
+        <location filename="DB_Streckenkm.py" line="255"/>
+        <source>Warning</source>
+        <translation>Achtung</translation>
+    </message>
+    <message>
+        <location filename="DB_Streckenkm.py" line="255"/>
+        <source>You need to create a Spatial Index first</source>
+        <translation>DU musst zuerst einen Spatial Index erstellen</translation>
     </message>
 </context>
 </TS>

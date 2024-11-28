@@ -21,7 +21,7 @@ class DataWidget(QWidget, Ui_DataWidget):
         icon_path = os.path.join(os.path.dirname(__file__), "..", "icons", "icon_copy.png")
         self.copy_icon = QIcon(icon_path)
         self.setWindowIcon(QIcon(get_icon_path()))
-        self.setWindowTitle(self.tr("StreckenKM"))
+        self.setWindowTitle(self.tr("Railway Kilometer Finder"))
         self.ui_rows = self.value_layout.rowCount()
 
         self.pushButton_km.clicked.connect(self.copy_km)

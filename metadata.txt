@@ -3,14 +3,14 @@
 # This file should be included when you package your plugin.# Mandatory items:
 
 [general]
-name=DB_Streckenkm
+name=Railway Kilometer Finder
 qgisMinimumVersion=3.0
-description=Klicke auf eine Karte und erhalte den nähsten Streckenkm
+description=The Railway Kilometer Finder is a plugin designed to simplify the process of determining the railway kilometer (chainage) of objects located near a railway line. With just a click on the map, you can instantly calculate and retrieve the exact kilometer value for objects in proximity to the selected railway track.
 version=0.1
 author=Christoph Mellüh
 email=christoph.mellueh@deutschebahn.com
 
-about=Dieses Plugin hilf dir den Streckenkilometer von einzelnen Punkten zu bestimmen
+about=The Railway Kilometer Finder is a QGIS plugin designed to simplify the process of determining the railway kilometer (chainage) of objects located near a railway line. With just a click on the map, you can instantly calculate and retrieve the exact kilometer value for objects in proximity to the selected railway track.
 
 tracker=https://github.com/c-mellueh/qgis_streckenkm/issues
 repository=https://github.com/c-mellueh/qgis_streckenkm
@@ -23,13 +23,13 @@ hasProcessingProvider=no
 # changelog=
 
 # Tags are comma separated with spaces allowed
-tags=python
+tags=python, railway, Deutsche Bahn
 
-homepage=http://homepage
+homepage=https://github.com/c-mellueh/qgis_streckenkm
 category=Plugins
-icon=icon.png
+icon=icons/icon.png
 # experimental flag
-experimental=True
+experimental=False
 
 # deprecated flag (applies to the whole plugin, not just a single version)
 deprecated=False
