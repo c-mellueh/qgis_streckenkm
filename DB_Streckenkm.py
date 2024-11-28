@@ -63,7 +63,7 @@ class StreckenkmFinder:
 
         # Declare instance attributes
         self.actions = []
-        self.menu = self.tr(u'&Railway Kilometer Finder')
+        self.menu = self.tr(u'Railway Kilometer finder')
 
         # Check if plugin was started the first time in current QGIS session
         # Must be set in initGui() to survive plugin reloads
@@ -158,9 +158,7 @@ class StreckenkmFinder:
             self.iface.addToolBarIcon(action)
 
         if add_to_menu:
-            self.iface.addPluginToMenu(
-                self.menu,
-                action)
+            self.iface.addPluginToVectorMenu(self.menu,             action)
 
         self.actions.append(action)
 
@@ -203,6 +201,7 @@ class StreckenkmFinder:
                 QgsProject.instance().removeMapLayer(layer_id)
         self.remove_highlights()
         self.canvas.repaint()
+
     def destroy_hidden_layer(self):
         self.remove_highlights()
         self.map_tool.delete_lines()
